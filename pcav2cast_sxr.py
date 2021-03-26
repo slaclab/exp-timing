@@ -1,0 +1,85 @@
+#####################################################################
+# Filename: pcav2cast_sxr.py
+# Author: Chengcheng Xu (charliex@slac.stanford.edu)
+# Date: 03/07/2021
+#####################################################################
+# This script will take the phase cavity value and put throw 
+# an exponential feedback controller, then output its value to the 
+# phase shifter in the cable stabilizer system
+# NOTE: This is a band-aid, code is probably breaking many rules
+# source /reg/g/pcds/engineering_tools/xpp/scripts/pcds_conda 
+# to run python on las-console
+
+import epics as epics
+import numpy as np
+import time as time
+import datetime
+# from matplotlib import pyplot as plt
+
+HXR_PCAV_PV0 = 'SIOC:UNDH:PT01:0:TIME0'
+HXR_PCAV_PV1 = 'SIOC:UNDH:PT01:0:TIME1'
+HXR_CAST_PS_PV_W = 'LAS:UND:MMS:02'
+HXR_CAST_PS_PV_R = 'LAS:UND:MMS:02.RBV'
+HXR_CAST2PCAV_Gain = 1.1283 # the slow from plotting cast phase shifter to value read from PCAV
+SXR_PCAV_PV0 = 'SIOC:UNDS:PT01:0:TIME0'
+SXR_PCAV_PV1 = 'SIOC:UNDS:PT01:0:TIME1'
+SXR_CAST_PS_PV_W = 'LAS:UND:MMS:01'
+SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
+SXR_CAST2PCAV_Gain = 1.1283 # the slow from plotting cast phase shifter to value read from PCAV
+# -1727400.6755412123
+
+pause_time = 2    # Let's give some time for the system to react
+Cntl_gain = 0.1   # Feed back loop gain
+#We are doing an exponential fb loop, where the output = output[-1] + (-gain * error)
+Cntl_setpt  = epics.caget(SXR_PCAV_PV0)  # Latch in the value before starting the feedback, this will be value we correct to
+Cntl_output = 0
+pcav_avg_n  = 5    # Taking 5 data samples to average and throw out outliers
+
+# let's get the current value of the phase shifter
+SXR_CAST_PS_init_Val = epics.caget(SXR_CAST_PS_PV_R)
+Cntl_output = SXR_CAST_PS_init_Val   # once the script runs, that value is the setpoint
+
+time_err_ary = np.zeros((pcav_avg_n,)) 
+
+cntr = 0
+time_err_avg_prev = 0
+
+print('Controller running')
+
+while True:
+    print(cntr)
+    for h in range(0,pcav_avg_n):
+        SXR_PCAV_Val_tmp = epics.caget(SXR_PCAV_PV0)
+        time_err = np.around((Cntl_setpt - SXR_PCAV_Val_tmp), decimals=6)
+        time_err_ary[h] = time_err
+        time.sleep(0.1)
+    time_err_ary_sort = np.sort(time_err_ary)
+    time_err_ary_sort1 = time_err_ary_sort[1:-1]
+    time_err_avg = np.mean(time_err_ary_sort1)  
+
+    if cntr == 0:
+        time_err_diff = 0.01
+    else:
+        time_err_diff = time_err_avg_prev - time_err_avg  
+        print('error diff')
+        print(time_err_diff)  
+    print('average error')
+    print(time_err_avg)
+    cntl_temp = np.true_divide(time_err_avg, SXR_CAST2PCAV_Gain)
+    cntl_delta = np.multiply(Cntl_gain, cntl_temp)
+    if (time_err_diff == 0) or (time_err_diff >= 100):
+        cntl_delta = 0
+    Cntl_output = Cntl_output + cntl_delta
+    print('feedback value')
+    print(Cntl_output)
+    print('feedback delta')
+    print(cntl_delta)
+    epics.caput(SXR_CAST_PS_PV_W, Cntl_output)
+    cntr = cntr + 1
+    now = datetime.datetime.now()
+    print(now.strftime('%Y-%m-%d-%H-%M-%S'))
+    print('=============================================')        
+    time.sleep(pause_time)    
+
+# epics.caput(SXR_CAST_PS_PV_W, SXR_CAST_PS_init_Val)
+
