@@ -7,13 +7,13 @@
 # an exponential feedback controller, then output its value to the 
 # phase shifter in the cable stabilizer system
 # NOTE: This is a band-aid, code is probably breaking many rules
-# source /reg/g/pcds/engineering_tools/xpp/scripts/pcds_conda 
-# to run python on las-console
-
+# To ensure right python env sourced
+# source /reg/g/pcds/engineering_tools/xpp/scripts/pcds_conda
 import epics as epics
 import numpy as np
 import time as time
 import datetime
+
 # from matplotlib import pyplot as plt
 
 HXR_PCAV_PV0 = 'SIOC:UNDH:PT01:0:TIME0'
@@ -60,13 +60,15 @@ while True:
     if cntr == 0:
         time_err_diff = 0.01
     else:
-        time_err_diff = time_err_avg_prev - time_err_avg
-        print('error diff')
-        print(time_err_diff)  
+        time_err_diff = time_err_avg_prev - time_err_avg  
     print('average error')
     print(time_err_avg)
     cntl_temp = np.true_divide(time_err_avg, HXR_CAST2PCAV_Gain)
     cntl_delta = np.multiply(Cntl_gain, cntl_temp)
+    print('previous error')
+    print(time_err_avg_prev)
+    print('Error diff')
+    print(time_err_diff)
     if (time_err_diff == 0) or (time_err_diff >= 100):
         cntl_delta = 0
     Cntl_output = Cntl_output + cntl_delta
@@ -75,6 +77,7 @@ while True:
     print('feedback delta')
     print(cntl_delta)
     epics.caput(HXR_CAST_PS_PV_W, Cntl_output)
+    time_err_avg_prev = time_err_avg
     cntr = cntr + 1
     now = datetime.datetime.now()
     print(now.strftime('%Y-%m-%d-%H-%M-%S'))
@@ -82,4 +85,3 @@ while True:
     time.sleep(pause_time)    
 
 # epics.caput(HXR_CAST_PS_PV_W, HXR_CAST_PS_init_Val)
-

@@ -56,17 +56,19 @@ while True:
     time_err_ary_sort = np.sort(time_err_ary)
     time_err_ary_sort1 = time_err_ary_sort[1:-1]
     time_err_avg = np.mean(time_err_ary_sort1)  
-
+    
     if cntr == 0:
         time_err_diff = 0.01
     else:
         time_err_diff = time_err_avg_prev - time_err_avg  
-        print('error diff')
-        print(time_err_diff)  
     print('average error')
     print(time_err_avg)
     cntl_temp = np.true_divide(time_err_avg, SXR_CAST2PCAV_Gain)
     cntl_delta = np.multiply(Cntl_gain, cntl_temp)
+    print('previous error')
+    print(time_err_avg_prev)
+    print('Error diff')
+    print(time_err_diff)
     if (time_err_diff == 0) or (time_err_diff >= 100):
         cntl_delta = 0
     Cntl_output = Cntl_output + cntl_delta
@@ -75,11 +77,11 @@ while True:
     print('feedback delta')
     print(cntl_delta)
     epics.caput(SXR_CAST_PS_PV_W, Cntl_output)
+    time_err_avg_prev = time_err_avg
     cntr = cntr + 1
     now = datetime.datetime.now()
     print(now.strftime('%Y-%m-%d-%H-%M-%S'))
     print('=============================================')        
-    time.sleep(pause_time)    
+    time.sleep(pause_time)  
 
 # epics.caput(SXR_CAST_PS_PV_W, SXR_CAST_PS_init_Val)
-
