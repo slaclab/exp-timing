@@ -32,7 +32,7 @@ CAST_PS_target = 0  # Targeted value for the phase shifter
 PCAV_Val_ary = np.zeros((phase_steps,))
 
 # let's get the current value of the phase shifter
-CAST_PS_init_Val = epics.caget(CAST_PS_PV_R)
+CAST_PS_init_Val = epics.caget(HXR_CAST_PS_PV_R)
 CAST_PS_target = CAST_PS_init_Val
 
 for y in range(0,phase_steps):
@@ -42,7 +42,7 @@ for y in range(0,phase_steps):
     print(CAST_PS_target)
     f.write(str(CAST_PS_target) + ',')
     print('epics.caput(' + CAST_PS_PV_W + ', ' + str(CAST_PS_target) + ')')
-    epics.caput(CAST_PS_PV_W, CAST_PS_target)
+    # epics.caput(CAST_PS_PV_W, CAST_PS_target)
     time.sleep(pause_time)
     print('PCAV value')
     PCAV_Val_ary[y] = epics.caget(PCAV_PV0)
