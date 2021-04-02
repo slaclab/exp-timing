@@ -30,6 +30,7 @@ XPP_LAS_TT_PV = 'LAS:FS11:VIT:FS_TGT_TIME'  # EGU in ns
 # XPP_LAS_TTOffset_PV = 'LAS:FS11:VIT:FS_TGT_TIME_OFFSET'
 # XCS_LAS_TT_PV = 'LAS:FS4:VIT:FS_TGT_TIME'  # EGU in ns
 
+PCAV_err_bar = 1
 PCAV2TT_Gain = 1000  # PCAV reads in pico second, TT is in nano
 pause_time = 2    # Let's give some time for the system to react
 Cntl_gain  = 1     # feed forward gain
@@ -53,8 +54,7 @@ print('Controller running')
 while True:
     print('Counter val: ' + str(cntr))
     PCAV0_Val_tmp = epics.caget(HXR_PCAV_PV0)
-    time_err = np.around((PCAV0_setpoint - PCAV0_Val_tmp), decimals=6)
-    XPP_TT = epics.caget(XPP_LAS_TT_PV)
+    time_err = np.round((PCAV0_setpoint - PCAV0_Val_tmp), decimals=6)
     if cntr == 0:
         time_err_ary = np.array(time_err)
     elif (cntr >= pcav_avg_n):
