@@ -7,3 +7,9 @@ Timetool PV is XPP:TIMETOOL:TTALL which is a waveform of length 6.  Here's the d
           v[5] = d.position_fwhm(); # FWHM of edge "shape"
 
 -Matt
+
+in Takahiro's code
+
+ttamp -> d.amplitude        # he sets the threshold to be 0.05
+ipm2val -> d.nxt_amplitud   # he sets the threshold to be 2000 to 3000
+ttfwhm -> d.position_fwhm   # value should be 70 < ttfwhm < 130
