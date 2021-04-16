@@ -22,7 +22,7 @@ XPP_LAS_TT_PV = 'LAS:FS11:VIT:FS_TGT_TIME'  # EGU in ns
 
 # PCAV/CAST feed forward variables 
 cast_avg_n  = 20    # n sample moving average
-time_err_th = 20    # pcav err threshold in fs
+time_err_th = 50    # pcav err threshold in fs
 time_err_ary = 0 
 time_err_prev = 0
 motr_step_cntr = 0  # counter for how many time the phase "motor" has moved in unit of time_err_th
@@ -37,7 +37,7 @@ HXR_cast_iqs_sp = epics.caget(HXR_CAST_PS_PV_R)
 # ATM Feedback variables
 atm_avg_n = cast_avg_n
 atm_val_ary = np.zeros(cast_avg_n)
-ttamp_th = 1
+ttamp_th = 0.05
 ipm2_th = 3000
 ttfwhm_hi = 130
 ttfwhm_lo = 70
@@ -58,7 +58,8 @@ while True:
     cast_val_tmp = epics.caget(HXR_CAST_PS_PV_R)
     time_err = np.around((cast_val_tmp - HXR_cast_iqs_sp), decimals=6)
     time_err_delta = time_err - time_err_prev
-    
+    print(cast_val_tmp)
+    print(time_err)
     # Getting ATM reading
     atm_wf_tmp = epics.caget(FS11_ATM_PV)
     atm_pos = atm_wf_tmp[0]
@@ -67,13 +68,18 @@ while True:
     atm_nxt_amp = atm_wf_tmp[3]
     atm_ref_amp = atm_wf_tmp[4]
     atm_fwhm = atm_wf_tmp[5]
+    if(cntr%10 == 0):
+        print(atm_wf_tmp)
     # Testing if the ATM readback is valid parameter from Takahiro
     if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm >  ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
         tt_ok = 1
-        print('Good ATM reading')
+        print('!!!!!!!!!!Good ATM reading!!!!!!!!!!')
     else:
         tt_ok = 0
-        print('Bad ATM reading')
+        print('##########Bad ATM reading###########')
+    cntr = cntr + 1
+    time.sleep(0.5)        
+
     # Filling the running avg array
     if cntr == 0:
         time_err_ary = time_err
@@ -98,26 +104,30 @@ while True:
 
     # Decide which feedback to use
     if tt_ok:
-        pm_step = np.trunc(np.true_divide(atm_ary_mean_fs, time_err_th))
+        pm_step = -1*np.trunc(np.true_divide(atm_ary_mean_fs, time_err_th))
     else:
-        pm_step = np.trunc(np.true_divide(time_err_mean_fs, time_err_th))
+        pm_step = -1*np.trunc(np.true_divide(time_err_mean_fs, time_err_th))
 
+    print('phase motor step: ' + str(pm_step))
+    current_DC_val = epics.caget(FS11_DC_val_PV)
     if pm_step != motr_step_cntr:
-        print('moving drift compensation')
+        print('///////////////moving drift compensation/////////////')
         motr_step_diff = pm_step - motr_step_cntr
         motr_step_diff_mag = np.abs(motr_step_diff)
-        motr_step_diff_dir = np.sign(motr_step_diff)
-        current_DC_val = epics.caget(FS11_DC_val_PV)
+        motr_step_diff_dir = np.sign(motr_step_diff)        
         print('current drift comp val = ' + str(current_DC_val) + '\n')
         pm_val = np.multiply(pm_step, time_err_th)
         new_DC_val = current_DC_val + np.true_divide(pm_val, 1e6)
         print('epics.caput(FS11_DC_val_PV, new_DC_val)')
+        # epics.caput(FS11_DC_val_PV, new_DC_val)
         motr_step_cntr = pm_step
         print('move time by: ' + str(pm_val))
         print('pm delta: ' + str(motr_step_diff))
     print('CAST err delta: ' + str(np.around(time_err_delta, 3)) + 'ps')
     print('motor steps: ' + str(pm_step))
     print('current pm cntr: ' + str(motr_step_cntr))
+    print('current DC val: ' + str(current_DC_val))
+    print('\n\n')
     print(str(cast_avg_n) + ' sample moving average cast err: ' + str(time_err_mean_fs) + 'fs')
     print('cast err array: ')
     print(time_err_ary)
