@@ -53,28 +53,13 @@ ATM_ref_amp = ATM_wf_val[4]
 ATM_fwhm = ATM_wf_val[5]
 atm_pm_step = 0
 atm_prev = ATM_val
+atm_t_cntr = 0
+tt_good_cntr = 0
+tt_bad_cntr = 0
 
 print('Controller running')
 while True:
-    cast_val_tmp = epics.caget(HXR_CAST_PS_PV_R)
-    if (cntr%(pause_time*10) == 0):
-        time_err_delta = cast_val_tmp - time_err_prev
-        time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)
-        cast_acc = cast_acc + time_err_d_fs
-        cast_tot_acc = cast_tot_acc + time_err_d_fs
-        time_err_prev = cast_val_tmp
-    if cast_acc>time_err_th or cast_acc<-time_err_th:
-        print('Move to compensate')
-        cast_acc_ns = -np.true_divide(cast_acc, 1e6)
-        FS11_DC_val = epics.caget(FS11_DC_val_PV)
-        FS11_DC_val = FS11_DC_val + cast_acc_ns
-        epics.caput(FS11_DC_val_PV, FS11_DC_val)
-        mv_cntr = mv_cntr + 1
-        cast_acc = 0
-
-    time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)
-
-    # Getting ATM reading
+    # Getting ATM reading determine if the ATM reading is good
     atm_wf_tmp = epics.caget(FS11_ATM_PV)
     atm_pos = atm_wf_tmp[0]
     atm_val = atm_wf_tmp[1]
@@ -85,19 +70,42 @@ while True:
     # atm_t_err_delta = atm_val - atm_prev
     # atm_err_d_fs = np.around(np.multiply(atm_t_err_delta, 1000), 3)
 
-    # # if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm >  ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
-    # if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm >  ttfwhm_lo):
-    #     tt_ok = 1
-    #     # print('!!!!!!!!!!Good ATM reading!!!!!!!!!!')
-    #     # print('ATM val: ' + str(atm_val) + 'ps')
-    #     # print('ATM delta err: ' + str(atm_err_d_fs) + 'fs')
-    #     atm_val_good = atm_val
-    #     atm_err_d_fs_good = atm_err_d_fs
-    # else:
-    #     tt_ok = 0
-    #     # print('##########Bad ATM reading###########')
-    #     # print('ATM val: ' + str(atm_val) + 'ps')
-    #     # print('ATM delta err: ' + str(atm_err_d_fs) + 'fs')        
+    if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
+        tt_good_cntr += 1
+        if (tt_good_cntr > 200) and (atm_t_cntr%(3000*pause_time) == 0) :
+            cast_ff_en = 1
+            tt_bad_cntr = 0
+            atm_t_cntr = 0
+    else:
+        tt_bad_cntr += 1
+        if (tt_good_cntr > 200) and (atm_t_cntr%(3000*pause_time) == 0) :
+            cast_ff_en = 0
+            tt_good_cntr = 0
+            atm_t_cntr = 0
+    if (tt_good_cntr != 0) or (tt_bad_cntr != 0):
+        atm_t_cntr += 1
+
+    # PCAV/CAST delta change of feedforward
+    cast_val_tmp = epics.caget(HXR_CAST_PS_PV_R)
+    if (cntr%(pause_time*50) == 0):
+        time_err_delta = cast_val_tmp - time_err_prev
+        time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)
+        cast_tot_acc = cast_tot_acc + time_err_d_fs
+        time_err_prev = cast_val_tmp
+        if cast_ff_en:
+            cast_acc = cast_acc + time_err_d_fs
+        else:
+            cast_acc = 
+    if cast_acc>time_err_th or cast_acc<time_err_th:
+        print('Move to compensate')
+        cast_acc_ns = -np.true_divide(cast_acc, 1e6)
+        FS11_DC_val = epics.caget(FS11_DC_val_PV)
+        FS11_DC_val = FS11_DC_val + cast_acc_ns
+        epics.caput(FS11_DC_val_PV, FS11_DC_val)
+        mv_cntr = mv_cntr + 1
+        cast_acc = 0
+
+    time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)      
 
     if (cntr%(pause_time*100) == 0):
         print('//////////////////////////////////////////////////////////////////')
@@ -114,6 +122,6 @@ while True:
         # print('ATM val: ' + str(atm_val) + 'ps')
         # print('ATM delta err: ' + str(atm_err_d_fs) + 'fs')
 
-    cntr = cntr + 1
+    cntr += 1
 
     time.sleep(pause_time)
