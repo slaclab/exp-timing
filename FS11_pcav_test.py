@@ -53,7 +53,7 @@ ATM_ref_amp = ATM_wf_val[4]
 ATM_fwhm = ATM_wf_val[5]
 atm_pm_step = 0
 atm_prev = ATM_val
-atm_t_cntr = 0
+atm_t_cntr = 1
 tt_good_cntr = 0
 tt_bad_cntr = 0
 cast_ff_en = 0
@@ -72,21 +72,30 @@ while True:
     # atm_t_err_delta = atm_val - atm_prev
     # atm_err_d_fs = np.around(np.multiply(atm_t_err_delta, 1000), 3)
 
+    # if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
     if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
         tt_good_cntr += 1
-        if (tt_good_cntr > 200) and (atm_t_cntr%(3000*pause_time) == 0) :
-            print('good atm')
-            cast_ff_en = 0
-            tt_bad_cntr = 0
-            atm_t_cntr = 0
     else:
         tt_bad_cntr += 1
-        if (tt_good_cntr > 200) and (atm_t_cntr%(3000*pause_time) == 0) :
-            print('bad atm')
-            cast_ff_en = 1
-            cast_ff_cntr += 1
-            tt_good_cntr = 0
-            atm_t_cntr = 0
+
+    if (tt_good_cntr > 250) and (atm_t_cntr%(3000*pause_time) == 0) :
+        print('good atm')
+        cast_ff_en = 0
+        tt_good_cntr = 0
+        tt_bad_cntr = 0
+        atm_t_cntr = 1
+    elif (tt_bad_cntr > 250) and (atm_t_cntr%(3000*pause_time) == 0) :
+        print('bad atm')
+        cast_ff_en = 1
+        cast_ff_cntr += 1
+        tt_good_cntr = 0
+        tt_bad_cntr = 0
+        atm_t_cntr = 1
+    elif (atm_t_cntr%(3000*pause_time) == 0) :
+        print('resetting')
+        atm_t_cntr = 1
+        tt_good_cntr = 0
+        tt_bad_cntr = 0
     if (tt_good_cntr != 0) or (tt_bad_cntr != 0):
         atm_t_cntr += 1
 
@@ -112,7 +121,7 @@ while True:
 
     time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)      
 
-    if (cntr%(pause_time*1000) == 0):
+    if (cntr%(pause_time*500) == 0):
         print('//////////////////////////////////////////////////////////////////')
         print('Counter val: ' + str(cntr))
         ts = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
@@ -128,13 +137,19 @@ while True:
             # print('CAST err acc: ' + str(cast_acc_ns) + ' ns')
             print('CAST err acc: ' + str(cast_acc) + ' fs')
             print('FS11 DC: ' + str(FS11_DC_val) + ' ns')
-            print('Moved cntr: ' + str(mv_cntr))            
+            print('Moved cntr: ' + str(mv_cntr))
+            print('tt_good_cntr val: ' + str(tt_good_cntr))
+            print('tt_bad_cntr val: ' + str(tt_bad_cntr))
+            print('atm_t_cntr: ' + str(atm_t_cntr))             
         else:
             print('###############################')
             print('Good ATM reading')
             print('Nothing to do here')
             print('CAST FF has activated: ' + str(cast_ff_cntr) + ' times')
             print('Shifter delta err:  '  + str(time_err_d_fs) + ' fs')
+            print('tt_good_cntr val: ' + str(tt_good_cntr))
+            print('tt_bad_cntr val: ' + str(tt_bad_cntr))
+            print('atm_t_cntr: ' + str(atm_t_cntr))
             print('###############################')   
     
     cntr += 1
