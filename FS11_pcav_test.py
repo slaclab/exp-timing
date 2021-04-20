@@ -56,6 +56,8 @@ atm_prev = ATM_val
 atm_t_cntr = 0
 tt_good_cntr = 0
 tt_bad_cntr = 0
+cast_ff_en = 0
+cast_ff_cntr = 0
 
 print('Controller running')
 while True:
@@ -73,13 +75,16 @@ while True:
     if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
         tt_good_cntr += 1
         if (tt_good_cntr > 200) and (atm_t_cntr%(3000*pause_time) == 0) :
-            cast_ff_en = 1
+            print('good atm')
+            cast_ff_en = 0
             tt_bad_cntr = 0
             atm_t_cntr = 0
     else:
         tt_bad_cntr += 1
         if (tt_good_cntr > 200) and (atm_t_cntr%(3000*pause_time) == 0) :
-            cast_ff_en = 0
+            print('bad atm')
+            cast_ff_en = 1
+            cast_ff_cntr += 1
             tt_good_cntr = 0
             atm_t_cntr = 0
     if (tt_good_cntr != 0) or (tt_bad_cntr != 0):
@@ -95,33 +100,42 @@ while True:
         if cast_ff_en:
             cast_acc = cast_acc + time_err_d_fs
         else:
-            cast_acc = 
-    if cast_acc>time_err_th or cast_acc<time_err_th:
+            cast_acc = 0
+    if cast_acc>time_err_th or cast_acc<(-time_err_th):
         print('Move to compensate')
         cast_acc_ns = -np.true_divide(cast_acc, 1e6)
         FS11_DC_val = epics.caget(FS11_DC_val_PV)
         FS11_DC_val = FS11_DC_val + cast_acc_ns
-        epics.caput(FS11_DC_val_PV, FS11_DC_val)
+        # epics.caput(FS11_DC_val_PV, FS11_DC_val)
         mv_cntr = mv_cntr + 1
         cast_acc = 0
 
     time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)      
 
-    if (cntr%(pause_time*100) == 0):
+    if (cntr%(pause_time*1000) == 0):
         print('//////////////////////////////////////////////////////////////////')
-        print('Counter val: ' + str(cntr))        
-        print('cast shifter value: '  + str(cast_val_tmp)  + ' ps')
-        print('Shifter delta err:  '  + str(time_err_d_fs) + ' fs')
-        print('Shifter threshold:  '  + str(time_err_th)   + ' fs')
-        print('Total CAST acc: ' + str(cast_tot_acc) + ' fs')
-        print('CAST err acc: ' + str(cast_acc_ns) + ' ns')
-        print('CAST err acc: ' + str(cast_acc) + ' fs')
-        print('FS11 DC: ' + str(FS11_DC_val) + ' ns')
-        print('Moved cntr: ' + str(mv_cntr))
-        # print('!!!!!!!!!!Last Good ATM reading!!!!!!!!!!')
-        # print('ATM val: ' + str(atm_val) + 'ps')
-        # print('ATM delta err: ' + str(atm_err_d_fs) + 'fs')
-
+        print('Counter val: ' + str(cntr))
+        ts = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+        print(ts)
+        if cast_ff_en:
+            print('##############################')
+            print('Bad ATM readings')
+            print('##############################')
+            print('cast shifter value: '  + str(cast_val_tmp)  + ' ps')
+            print('Shifter delta err:  '  + str(time_err_d_fs) + ' fs')
+            print('Shifter threshold:  '  + str(time_err_th)   + ' fs')
+            print('Total CAST acc: ' + str(cast_tot_acc) + ' fs')
+            # print('CAST err acc: ' + str(cast_acc_ns) + ' ns')
+            print('CAST err acc: ' + str(cast_acc) + ' fs')
+            print('FS11 DC: ' + str(FS11_DC_val) + ' ns')
+            print('Moved cntr: ' + str(mv_cntr))            
+        else:
+            print('###############################')
+            print('Good ATM reading')
+            print('Nothing to do here')
+            print('CAST FF has activated: ' + str(cast_ff_cntr) + ' times')
+            print('Shifter delta err:  '  + str(time_err_d_fs) + ' fs')
+            print('###############################')   
+    
     cntr += 1
-
     time.sleep(pause_time)
