@@ -21,14 +21,17 @@ HXR_CAST_PS_PV_R = 'LAS:UND:MMS:02.RBV'
 SXR_CAST_PS_PV_W = 'LAS:UND:MMS:01'        # EGU in ps
 SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
 
+# put limit threshold PV here from EDM
+
+avg_n = 60
 # ATM Feedback variables
-atm_avg_n = cast_avg_n
-atm_val_ary = np.zeros(cast_avg_n)
+atm_avg_n = avg_n
+atm_val_ary = np.zeros(avg_n)
 ttamp_th = 0.05
 ipm2_th = 3000
 ttfwhm_hi = 130
 ttfwhm_lo = 70
-ATM_wf_val = epics.caget(FS11_ATM_PV)
+ATM_wf_val = epics.caget(ATM_PV)
 ATM_pos = ATM_wf_val[0]
 ATM_val = ATM_wf_val[1]
 ATM_amp = ATM_wf_val[2]
