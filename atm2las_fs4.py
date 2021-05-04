@@ -76,8 +76,10 @@ while True:
     # Condition for good atm reading
     if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
         tt_good_cntr += 1
+        tt_good = True
     else:
         tt_bad_cntr += 1
+        tt_good = False
     
     # Determine if use ATM or PCAV as drift compensation
     if (tt_good_cntr > 250) and (atm_t_cntr%(3000*pause_time) == 0) :
@@ -100,6 +102,31 @@ while True:
         tt_bad_cntr = 0
     if (tt_good_cntr != 0) or (tt_bad_cntr != 0):
         atm_t_cntr += 1    
+    
+    # Test 
+    if tt_good:        
+        # Filling the running avg array
+        if cntr == 0:
+            time_err_ary = time_err
+            if tt_ok:
+                atm_val_ary = atm_val
+        elif (cntr >= cast_avg_n):
+            if np.abs(time_err_delta) < (0.100):
+                time_err_ary = np.delete(time_err_ary, 0)
+                time_err_ary = np.append(time_err_ary, time_err)
+            if tt_ok:
+                atm_val_ary = np.delete(atm_val_ary, 0)
+                atm_val_ary = np.append(atm_val_ary,atm_val)
+        else:
+            time_err_ary = np.append(time_err_ary, time_err)
+            if tt_ok:
+                atm_val_ary = np.append(atm_val_ary,atm_val)
+        time_err_mean = np.mean(time_err_ary)
+        time_err_mean_fs = np.around(np.multiply(time_err_mean, 1000), 3)
+        # average and convert to fs
+        atm_ary_mean  = np.mean(atm_val_ary)
+        atm_ary_mean_fs = np.around(np.multiply(atm_ary_mean, 1000), 3)
+
 
     # PCAV/CAST delta change of feedforward
     cast_val_tmp = epics.caget(HXR_CAST_PS_PV_R)
@@ -124,4 +151,5 @@ while True:
     time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)
 
     # Need to calculate ATM value and average
+
     
