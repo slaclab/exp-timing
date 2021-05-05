@@ -15,6 +15,11 @@ DC_val_PV = 'LAS:FS4:VIT:matlab:04'        # Drift correct value in ns
 ATM_PV = 'XCS:TIMETOOL:TTALL'              # ATM waveform PV
 TTC_PV = 'XCS:LAS:MMN:01'                  # ATM mech delay stage
 IPM_PV = 'XCS:SB1:BMMON:SUM'               # intensity profile monitor PV
+IPM_HI = 'LAS:FS4:VIT:matlab:28.HIGH'
+IPM_LO = 'LAS:FS4:VIT:matlab:28.LOW'
+TT_matlab = 'LAS:FS4:VIT:matlab:23'
+TT_HI  = 'LAS:FS4:VIT:matlab:23.HIGH'
+TT_LO  = 'LAS:FS4:VIT:matlab:23.LOW'
 LAS_TT_PV = 'LAS:FS4:VIT:FS_TGT_TIME'      # EGU in ns
 HXR_CAST_PS_PV_W = 'LAS:UND:MMS:02'        # EGU in ps
 HXR_CAST_PS_PV_R = 'LAS:UND:MMS:02.RBV'
@@ -72,8 +77,10 @@ while True:
     atm_ref_amp = atm_wf_tmp[4]
     atm_fwhm = atm_wf_tmp[5]
     ipm_val = epics.caget(IPM_PV)
+    # 05/04 update the MATLAB PV to show on the EDM
 
     # Condition for good atm reading
+    # 05/04 should think about using the MATLAB PV
     if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
         tt_good_cntr += 1
         tt_good = True
@@ -103,30 +110,21 @@ while True:
     if (tt_good_cntr != 0) or (tt_bad_cntr != 0):
         atm_t_cntr += 1    
     
-    # Test 
-    if tt_good:        
-        # Filling the running avg array
-        if cntr == 0:
-            time_err_ary = time_err
-            if tt_ok:
-                atm_val_ary = atm_val
-        elif (cntr >= cast_avg_n):
-            if np.abs(time_err_delta) < (0.100):
-                time_err_ary = np.delete(time_err_ary, 0)
-                time_err_ary = np.append(time_err_ary, time_err)
-            if tt_ok:
-                atm_val_ary = np.delete(atm_val_ary, 0)
-                atm_val_ary = np.append(atm_val_ary,atm_val)
+    # Filling the running avg array
+    if tt_good:            
+        if cntr == 0 and tt_good:
+            atm_val_ary = atm_val
+        elif (cntr >= cast_avg_n) and tt_good:
+            atm_val_ary = np.delete(atm_val_ary, 0)
+            atm_val_ary = np.append(atm_val_ary,atm_val)
         else:
-            time_err_ary = np.append(time_err_ary, time_err)
-            if tt_ok:
+            if tt_good:
                 atm_val_ary = np.append(atm_val_ary,atm_val)
-        time_err_mean = np.mean(time_err_ary)
-        time_err_mean_fs = np.around(np.multiply(time_err_mean, 1000), 3)
         # average and convert to fs
         atm_ary_mean  = np.mean(atm_val_ary)
         atm_ary_mean_fs = np.around(np.multiply(atm_ary_mean, 1000), 3)
 
+    #05/04 figure out the feedback
 
     # PCAV/CAST delta change of feedforward
     cast_val_tmp = epics.caget(HXR_CAST_PS_PV_R)
