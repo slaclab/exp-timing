@@ -15,25 +15,21 @@ DC_val_PV = 'LAS:FS4:VIT:matlab:04'        # Drift correct value in ns
 ATM_PV = 'XCS:TIMETOOL:TTALL'              # ATM waveform PV
 TTC_PV = 'XCS:LAS:MMN:01'                  # ATM mech delay stage
 IPM_PV = 'XCS:SB1:BMMON:SUM'               # intensity profile monitor PV
-IPM_HI = 'LAS:FS4:VIT:matlab:28.HIGH'
-IPM_LO = 'LAS:FS4:VIT:matlab:28.LOW'
-TT_matlab = 'LAS:FS4:VIT:matlab:23'
-TT_HI  = 'LAS:FS4:VIT:matlab:23.HIGH'
-TT_LO  = 'LAS:FS4:VIT:matlab:23.LOW'
+IPM_HI_PV = 'LAS:FS4:VIT:matlab:28.HIGH'
+IPM_LO_PV = 'LAS:FS4:VIT:matlab:28.LOW'
+TT_amp_PV = 'LAS:FS4:VIT:matlab:23'
+TT_amp_HI_PV  = 'LAS:FS4:VIT:matlab:23.HIGH'
+TT_amp_LO_PV  = 'LAS:FS4:VIT:matlab:23.LOW'
 LAS_TT_PV = 'LAS:FS4:VIT:FS_TGT_TIME'      # EGU in ns
 HXR_CAST_PS_PV_W = 'LAS:UND:MMS:02'        # EGU in ps
 HXR_CAST_PS_PV_R = 'LAS:UND:MMS:02.RBV'
 SXR_CAST_PS_PV_W = 'LAS:UND:MMS:01'        # EGU in ps
 SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
 
-# put limit threshold PV here from EDM
-
 avg_n = 60
 # ATM Feedback variables
 atm_avg_n = avg_n
 atm_val_ary = np.zeros(avg_n)
-ttamp_th = 0.05
-ipm2_th = 3000
 ttfwhm_hi = 130
 ttfwhm_lo = 70
 ATM_wf_val = epics.caget(ATM_PV)
@@ -76,12 +72,19 @@ while True:
     atm_nxt_amp = atm_wf_tmp[3]
     atm_ref_amp = atm_wf_tmp[4]
     atm_fwhm = atm_wf_tmp[5]
-    ipm_val = epics.caget(IPM_PV)
-    # 05/04 update the MATLAB PV to show on the EDM
+    IPM_val    = epics.caget(IPM_PV)
+
+    # Get limit threshold from EDM
+    IPM_HI_val = epics.caget(IPM_HI_PV)
+    IPM_LO_val = epics.caget(IPM_LO_PV)
+    TT_amp_HI_val = epics.caget(TT_amp_HI_PV)
+    TT_amp_LO_val = epics.caget(TT_amp_LO_PV)
+
+    epics.caput(TT_amp_PV, atm_amp)  # Update EDM panel
 
     # Condition for good atm reading
-    # 05/04 should think about using the MATLAB PV
-    if (atm_amp > ttamp_th)and(atm_nxt_amp > ipm2_th)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
+    # 05/05 maybe fwhm threshold should be PVs too
+    if (atm_amp > TT_amp_LO_val)and(atm_nxt_amp > IPM_LO_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo)and(atm_val != atm_val_ary[-1,]):
         tt_good_cntr += 1
         tt_good = True
     else:
@@ -147,7 +150,5 @@ while True:
         cast_acc = 0
 
     time_err_d_fs = np.around(np.multiply(time_err_delta, 1000), 3)
-
-    # Need to calculate ATM value and average
 
     
