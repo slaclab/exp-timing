@@ -31,7 +31,10 @@ SXR_CAST2PCAV_Gain = 1.1283 # the slow from plotting cast phase shifter to value
 pause_time = 2    # Let's give some time for the system to react
 Cntl_gain = 0.1   # Feed back loop gain
 #We are doing an exponential fb loop, where the output = output[-1] + (-gain * error)
-Cntl_setpt  = epics.caget(HXR_PCAV_PV0)  # Latch in the value before starting the feedback, this will be value we correct to
+pcavsp_ary   = np.zeros(2,)
+pcavsp_ary[0,]  = epics.caget(HXR_PCAV_PV0)  # Latch in the value before starting the feedback, this will be value we correct to
+pcavsp_ary[1,]  = epics.caget(HXR_PCAV_PV1)  # Latch in the value before starting the feedback, this will be value we correct to
+Cntl_setpt = np.average(pcavsp_ary)
 Cntl_output = 0
 pcav_avg_n  = 5    # Taking 5 data samples to average and throw out outliers
 
@@ -39,7 +42,8 @@ pcav_avg_n  = 5    # Taking 5 data samples to average and throw out outliers
 HXR_CAST_PS_init_Val = epics.caget(HXR_CAST_PS_PV_R)
 Cntl_output = HXR_CAST_PS_init_Val   # once the script runs, that value is the setpoint
 
-time_err_ary = np.zeros((pcav_avg_n,)) 
+time_err_ary = np.zeros((pcav_avg_n,))
+PCAV_temp_ary = np.zeros(2,)
 
 cntr = 0
 time_err_avg_prev = 0
@@ -49,7 +53,10 @@ print('Controller running')
 while True:
     print(cntr)
     for h in range(0,pcav_avg_n):
-        HXR_PCAV_Val_tmp = epics.caget(HXR_PCAV_PV0)
+        PCAV_temp_ary[0,] = epics.caget(HXR_PCAV_PV0)
+        PCAV_temp_ary[1,] = epics.caget(HXR_PCAV_PV1)
+        HXR_PCAV_Val_tmp = np.average(PCAV_temp_ary)
+        # HXR_PCAV_Val_tmp = epics.caget(HXR_PCAV_PV0)
         time_err = np.around((Cntl_setpt - HXR_PCAV_Val_tmp), decimals=6)
         time_err_ary[h] = time_err
         time.sleep(0.1)
