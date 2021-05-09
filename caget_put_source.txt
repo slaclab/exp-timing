@@ -1,0 +1,2 @@
+source /reg/g/pcds/engineering_tools/latest-released/rc/bashrc
+source /reg/g/pcds/setup/epicsenv-cur.sh
