@@ -61,10 +61,13 @@ time_err_th = 50    # pcav err threshold in fs
 time_err_ary = 0 
 time_err_prev = epics.caget(HXR_CAST_PS_PV_R)
 motr_step_cntr = 0  # counter for how many time the phase "motor" has moved in unit of time_err_th
-motr_step_diff_mag = 0 
-motr_step_diff_dir = 0 
+motr_step_diff_mag = 0
+motr_step_diff_dir = 0
 cntr = 0
 mv_cntr = 0
+# enabled the drift feedback, also setting the drift comp value to 0, since it probably is stale value since last time
+epics.caput(DC_val_PV, 0)
+epics.caput(DC_sw_PV, 1)
 
 print('Controller running')
 while True:
