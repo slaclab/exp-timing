@@ -66,7 +66,7 @@ motr_step_diff_dir = 0
 cntr = 0
 mv_cntr = 0
 # enabled the drift feedback, also setting the drift comp value to 0, since it probably is stale value since last time
-epics.caput(DC_val_PV, 0)
+# epics.caput(DC_val_PV, 0)
 epics.caput(DC_sw_PV, 1)
 
 print('Controller running')
