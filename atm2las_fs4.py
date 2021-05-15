@@ -100,19 +100,16 @@ while True:
     
     # Determine if use ATM or PCAV as drift compensation
     if (tt_good_cntr > 100) and (atm_t_cntr%(3000*pause_time) == 0) :
-        # print('good atm')
         atm_stat = 1
         tt_good_cntr = 0
         tt_bad_cntr = 0
         atm_t_cntr = 1
     elif (tt_bad_cntr > 100) and (atm_t_cntr%(3000*pause_time) == 0) :
-        # print('bad atm')
         atm_stat = 0
         tt_good_cntr = 0
         tt_bad_cntr = 0
         atm_t_cntr = 1
     elif (atm_t_cntr%(3000*pause_time) == 0) :
-        # print('resetting')
         atm_t_cntr = 1
         tt_good_cntr = 0
         tt_bad_cntr = 0
