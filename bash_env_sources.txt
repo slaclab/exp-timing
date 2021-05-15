@@ -4,3 +4,6 @@ source /reg/g/pcds/setup/epicsenv-cur.sh
 ssh -Y psdev
 ssh -Y las-console
 /cds/home/s/sfsyunus/lhn/edm-fs11-tt.cmd
+
+
+LAS:FS11:VIT:CH1_CALC_PHASE_LAST_60_STD
