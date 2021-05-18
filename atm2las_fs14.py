@@ -12,8 +12,8 @@ import datetime
 pause_time = 0.1
 DC_sw_PV  = 'LAS:FS14:VIT:TT_DRIFT_ENABLE'  # Put 0 for disable, put 1 for enable
 DC_val_PV = 'LAS:FS14:VIT:matlab:04'        # Drift correct value in ns
-ATM_PV = 'XCS:TIMETOOL:TTALL'              # ATM waveform PV
-TTC_PV = 'XCS:LAS:MMN:01'                  # ATM mech delay stage
+ATM_PV = 'TMO:TIMETOOL:TTALL'              # ATM waveform PV
+TTC_PV = 'TMO:LAS:MMN:01'                  # ATM mech delay stage
 IPM_PV = 'EM2K0:XGMD:HPS:milliJoulesPerPulse'     # intensity profile monitor PV
 IPM_HI_PV = 'LAS:FS14:VIT:matlab:28.HIGH'
 IPM_LO_PV = 'LAS:FS14:VIT:matlab:28.LOW'
@@ -30,8 +30,8 @@ ATM_OFFSET_PV = 'LAS:UNDS:FLOAT:13'        # Notepad PV for ATM setpoint PV in p
 # ATM Feedback variables
 atm_avg_n = 70
 atm_val_ary = np.array([0])
-ttfwhm_hi = 200
-ttfwhm_lo = 100
+ttfwhm_hi = 120
+ttfwhm_lo = 30
 ATM_wf_val = epics.caget(ATM_PV)
 ATM_pos = ATM_wf_val[0]
 ATM_val = ATM_wf_val[1]
@@ -155,7 +155,7 @@ while True:
                 print('Move to compensate')
                 print('ATM err ns average: ' + str(atm_err_ns))
                 DC_val = epics.caget(DC_val_PV)
-                DC_val = DC_val - atm_err_ns
+                DC_val = DC_val + atm_err_ns
                 epics.caput(DC_val_PV, DC_val)
                 print("move DC PV to: " + str(DC_val) + "ns")
                 print('Clearning ATM array')
