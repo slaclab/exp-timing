@@ -12,6 +12,7 @@ import datetime
 pause_time = 0.1
 DC_sw_PV  = 'LAS:FS4:VIT:TT_DRIFT_ENABLE'  # Put 0 for disable, put 1 for enable
 DC_val_PV = 'LAS:FS4:VIT:matlab:04'        # Drift correct value in ns
+ATM_fb_PV = 'LAS:FS4:VIT:matlab:31'        # Using ATM as a feedback
 ATM_PV = 'XCS:TIMETOOL:TTALL'              # ATM waveform PV
 TTC_PV = 'XCS:LAS:MMN:01'                  # ATM mech delay stage
 IPM_PV = 'XCS:SB1:BMMON:SUM'               # intensity profile monitor PV
@@ -28,6 +29,7 @@ SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
 ATM_OFFSET_PV = 'LAS:UNDH:FLOAT:04'            # Notepad PV for ATM setpoint PV in ps
 
 # ATM Feedback variables
+atm_fb_en = 0
 atm_avg_n = 70
 atm_val_ary = np.array([0])
 ttfwhm_hi = 200
@@ -87,6 +89,9 @@ while True:
     IPM_LO_val = epics.caget(IPM_LO_PV)
     TT_amp_HI_val = epics.caget(TT_amp_HI_PV)
     TT_amp_LO_val = epics.caget(TT_amp_LO_PV)
+    
+    # Using ATM fb?
+    atm_fb_en = epics.caget(ATM_fb_PV)
 
     # Condition for good atm reading
     # 05/05 maybe fwhm threshold should be PVs too
@@ -151,7 +156,7 @@ while True:
         if atm_val_ary.size == atm_avg_n:
             print('array full')
             print(atm_val_ary)
-            if np.absolute(atm_ary_mean_fs)>time_err_th:
+            if (np.absolute(atm_ary_mean_fs)>time_err_th) and (atm_fb_en == 1):
                 print('Move to compensate')
                 print('ATM err ns average: ' + str(atm_err_ns))
                 DC_val = epics.caget(DC_val_PV)
