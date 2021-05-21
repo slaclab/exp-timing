@@ -18,6 +18,9 @@ TTC_PV = 'XCS:LAS:MMN:01'                  # ATM mech delay stage
 IPM_PV = 'XCS:SB1:BMMON:SUM'               # intensity profile monitor PV
 IPM_HI_PV = 'LAS:FS4:VIT:matlab:28.HIGH'
 IPM_LO_PV = 'LAS:FS4:VIT:matlab:28.LOW'
+TT_fwhm_PV = 'LAS:UNDH:FLOAT:05'
+TT_fwhm_HI_PV = 'LAS:UNDH:FLOAT:05.HIGH'
+TT_fwhm_LO_PV = 'LAS:UNDH:FLOAT:05.LOW'
 TT_amp_PV = 'LAS:FS4:VIT:matlab:23'
 TT_amp_HI_PV  = 'LAS:FS4:VIT:matlab:23.HIGH'
 TT_amp_LO_PV  = 'LAS:FS4:VIT:matlab:23.LOW'
@@ -32,8 +35,8 @@ ATM_OFFSET_PV = 'LAS:UNDH:FLOAT:04'            # Notepad PV for ATM setpoint PV 
 atm_fb_en = 0
 atm_avg_n = 70
 atm_val_ary = np.array([0])
-ttfwhm_hi = 200
-ttfwhm_lo = 100
+atm_fwhm_hi = 200
+atm_fwhm_lo = 100
 ATM_wf_val = epics.caget(ATM_PV)
 ATM_pos = ATM_wf_val[0]
 ATM_val = ATM_wf_val[1]
@@ -87,16 +90,21 @@ while True:
     # Get limit threshold from EDM
     IPM_HI_val = epics.caget(IPM_HI_PV)
     IPM_LO_val = epics.caget(IPM_LO_PV)
-    TT_amp_HI_val = epics.caget(TT_amp_HI_PV)
-    TT_amp_LO_val = epics.caget(TT_amp_LO_PV)
+    TT_amp_hi = epics.caget(TT_amp_HI_PV)
+    TT_amp_lo = epics.caget(TT_amp_LO_PV)
+    atm_fwhm_hi = epics.caget(TT_fwhm_HI_PV)
+    atm_fwhm_lo = epics.caget(TT_fwhm_LO_PV)
     
     # Using ATM fb?
-    atm_fb_en = epics.caget(ATM_fb_PV)
+    # atm_fb_en = epics.caget(ATM_fb_PV)
+
+    # Writing some ATM PVs
+    epics.caput(TT_fwhm_PV, atm_fwhm)
 
     # Condition for good atm reading
     # 05/05 maybe fwhm threshold should be PVs too
-    # if (atm_amp > TT_amp_LO_val)and(IPM_val > IPM_LO_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
-    if (atm_amp > TT_amp_LO_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
+    # if (atm_amp > TT_amp_lo)and(IPM_val > IPM_LO_val)and(atm_fwhm < atm_fwhm_hi)and(atm_fwhm > atm_fwhm_lo):
+    if (atm_amp > TT_amp_lo)and(atm_fwhm < atm_fwhm_hi)and(atm_fwhm > atm_fwhm_lo):
         tt_good_cntr += 1
         tt_good = True
     else:
