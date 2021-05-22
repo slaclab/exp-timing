@@ -34,9 +34,11 @@ you DO NOT need to run the script anymore
 
 4. Source the right environment
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-source /reg/g/pcds/engineering_tools/xpp/scripts/pcds_conda
 source /reg/g/pcds/engineering_tools/latest-released/rc/bashrc
 source /reg/g/pcds/setup/epicsenv-cur.sh
+source /reg/g/pcds/setup/pcds_shortcuts.sh
+export PATH=$PATH:/reg/g/pcds/engineering_tools/latest/scripts/
+source /reg/g/pcds/engineering_tools/xpp/scripts/pcds_conda
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ==========================================================
 
@@ -46,6 +48,7 @@ source /reg/g/pcds/setup/epicsenv-cur.sh
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 you should see under "TIMETOOL DRIFT CONTROL" Correction to be "ON". 
 the under the hood correction should be in the "Current Correction [ns]"
+you can set the threshold
 
 6. Go to the right directory
 \\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -58,7 +61,6 @@ cd /cds/home/c/charliex
 nohup python atm2las_fs14.py &> atm2las_fs14.out &
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ==========================================================
-
 
 8. to kill the atm2las_fs14.py script
 You can actually leave the script running, because if TTamp or TT fwhm is too low,
