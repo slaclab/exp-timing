@@ -12,31 +12,30 @@ import datetime
 pause_time = 0.1
 DC_sw_PV  = 'LAS:FS4:VIT:TT_DRIFT_ENABLE'  # Put 0 for disable, put 1 for enable
 DC_val_PV = 'LAS:FS4:VIT:matlab:04'        # Drift correct value in ns
-ATM_fb_PV = 'LAS:FS4:VIT:matlab:31'        # Using ATM as a feedback
 ATM_PV = 'XCS:TIMETOOL:TTALL'              # ATM waveform PV
 TTC_PV = 'XCS:LAS:MMN:01'                  # ATM mech delay stage
 IPM_PV = 'XCS:SB1:BMMON:SUM'               # intensity profile monitor PV
 IPM_HI_PV = 'LAS:FS4:VIT:matlab:28.HIGH'
 IPM_LO_PV = 'LAS:FS4:VIT:matlab:28.LOW'
-TT_fwhm_PV = 'LAS:UNDH:FLOAT:05'
-TT_fwhm_HI_PV = 'LAS:UNDH:FLOAT:05.HIGH'
-TT_fwhm_LO_PV = 'LAS:UNDH:FLOAT:05.LOW'
+TT_time_PV = 'LAS:FS14:VIT:matlab:22'
 TT_amp_PV = 'LAS:FS4:VIT:matlab:23'
-TT_amp_HI_PV  = 'LAS:FS4:VIT:matlab:23.HIGH'
-TT_amp_LO_PV  = 'LAS:FS4:VIT:matlab:23.LOW'
+TT_amp_HI_PV  = str(TT_amp_PV + '.HIGH')
+TT_amp_LO_PV  = str(TT_amp_PV + '.LOW')
+TT_fwhm_PV = 'LAS:UNDH:FLOAT:14'
+TT_fwhm_HI_PV = str(TT_fwhm_PV + '.HIGH')
+TT_fwhm_LO_PV = str(TT_fwhm_PV + '.LOW')
 LAS_TT_PV = 'LAS:FS4:VIT:FS_TGT_TIME'      # EGU in ns
 HXR_CAST_PS_PV_W = 'LAS:UND:MMS:02'        # EGU in ps
 HXR_CAST_PS_PV_R = 'LAS:UND:MMS:02.RBV'
 SXR_CAST_PS_PV_W = 'LAS:UND:MMS:01'        # EGU in ps
 SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
-ATM_OFFSET_PV = 'LAS:UNDH:FLOAT:04'            # Notepad PV for ATM setpoint PV in ps
+ATM_OFFSET_PV = 'LAS:UNDH:FLOAT:13'        # Notepad PV for ATM setpoint PV in ps
+ATM_FB_EN_PV = 'LAS:UNDH:FLOAT:15'         # Using ATM as a feedback
+LXT_thre_PV  = 'LAS:UNDH:FLOAT:16'         # Threshold for lxt to move
 
 # ATM Feedback variables
-atm_fb_en = 0
 atm_avg_n = 70
 atm_val_ary = np.array([0])
-atm_fwhm_hi = 200
-atm_fwhm_lo = 100
 ATM_wf_val = epics.caget(ATM_PV)
 ATM_pos = ATM_wf_val[0]
 ATM_val = ATM_wf_val[1]
@@ -76,7 +75,13 @@ epics.caput(DC_sw_PV, 1)
 
 print('Controller running')
 while True:
-    # Getting ATM & IPM reading determine if the ATM reading is good
+    # Did the LXT move? 
+    lxt_thre = epics.caget(LXT_thre_PV)
+    las_tt = epics.caget(LAS_TT_PV)
+    if np.absolute(las_tt-las_tt_pre) > lxt_thre:
+        time.sleep(2)
+
+    # Getting ATM & IPM reading determine if the ATM reading is good    
     atm_wf_tmp = epics.caget(ATM_PV)
     atm_pos = atm_wf_tmp[0]
     atm_val = atm_wf_tmp[1]  # in ps
@@ -86,6 +91,7 @@ while True:
     atm_fwhm = atm_wf_tmp[5]
     IPM_val  = epics.caget(IPM_PV)
     atm_offset  = epics.caget(ATM_OFFSET_PV)  # get setpoint in ps
+    atm_fb_en = epics.caget(ATM_FB_EN_PV)  # Using feedback?
 
     # Get limit threshold from EDM
     IPM_HI_val = epics.caget(IPM_HI_PV)
@@ -94,19 +100,24 @@ while True:
     TT_amp_lo = epics.caget(TT_amp_LO_PV)
     atm_fwhm_hi = epics.caget(TT_fwhm_HI_PV)
     atm_fwhm_lo = epics.caget(TT_fwhm_LO_PV)
-    
-    # Using ATM fb?
-    # atm_fb_en = epics.caget(ATM_fb_PV)
 
-    # Writing some ATM PVs
-    epics.caput(TT_fwhm_PV, atm_fwhm)
+    # Get limit threshold from EDM
+    IPM_HI_val = epics.caget(IPM_HI_PV)
+    IPM_LO_val = epics.caget(IPM_LO_PV)
+    tt_amp_hi_val = epics.caget(TT_amp_HI_PV)
+    tt_amp_lo_val = epics.caget(TT_amp_LO_PV)
+    tt_fwhm_hi_val = epics.caget(TT_fwhm_HI_PV)
+    tt_fwhm_lo_val = epics.caget(TT_fwhm_LO_PV)
 
     # Condition for good atm reading
-    # 05/05 maybe fwhm threshold should be PVs too
-    # if (atm_amp > TT_amp_lo)and(IPM_val > IPM_LO_val)and(atm_fwhm < atm_fwhm_hi)and(atm_fwhm > atm_fwhm_lo):
-    if (atm_amp > TT_amp_lo)and(atm_fwhm < atm_fwhm_hi)and(atm_fwhm > atm_fwhm_lo):
+    # 05/05 maybe fwhm threhiold should be PVs too
+    # if (atm_amp > tt_amhilo_val)and(IPM_val > IPM_LO_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
+    if (atm_amp > tt_amp_lo_val)and(atm_fwhm < tt_fwhm_hi_val)and(atm_fwhm > tt_fwhm_lo_val):
         tt_good_cntr += 1
         tt_good = True
+        epics.caput(TT_time_PV, atm_val)
+        epics.caput(TT_amp_PV, atm_amp)
+        epics.caput(TT_fwhm_PV, atm_fwhm)        
     else:
         tt_bad_cntr += 1
         tt_good = False
@@ -140,11 +151,11 @@ while True:
         else:
             if tt_good:
                 atm_val_ary = np.append(atm_val_ary,atm_val)
-        # average and convert to fs, ns
-        atm_ary_mean  = np.mean(atm_val_ary)
+        # average and convert to fs, ns, also add in the offset 
+        atm_ary_mean  = np.mean(atm_val_ary) - atm_offset
         atm_ary_mean_fs = np.around(np.multiply(atm_ary_mean, 1000), 3)
         atm_ary_mean_ns = np.true_divide(atm_ary_mean, 1000)
-        atm_err = atm_ary_mean + atm_offset
+        atm_err = atm_ary_mean
         atm_err_ns = np.true_divide(atm_err, 1000)
 
     if (cntr%(pause_time*200) == 0):
@@ -164,11 +175,11 @@ while True:
         if atm_val_ary.size == atm_avg_n:
             print('array full')
             print(atm_val_ary)
-            if (np.absolute(atm_ary_mean_fs)>time_err_th) and (atm_fb_en == 1):
+            if (np.absolute(atm_ary_mean_fs)>time_err_th) and (atm_fb_en != 0):
                 print('Move to compensate')
                 print('ATM err ns average: ' + str(atm_err_ns))
                 DC_val = epics.caget(DC_val_PV)
-                DC_val = DC_val - atm_err_ns
+                DC_val = DC_val + atm_err_ns
                 epics.caput(DC_val_PV, DC_val)
                 print("move DC PV to: " + str(DC_val) + "ns")
                 print('Clearning ATM array')
