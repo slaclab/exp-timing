@@ -16,16 +16,20 @@ import time as time
 import datetime
 # from matplotlib import pyplot as plt
 
+HXR_FB_PV = 'LAS:UNDH:FLOAT:05'
 HXR_PCAV_PV0 = 'SIOC:UNDH:PT01:0:TIME0'
 HXR_PCAV_PV1 = 'SIOC:UNDH:PT01:0:TIME1'
 HXR_CAST_PS_PV_W = 'LAS:UND:MMS:02'
-HXR_CAST_PS_PV_R = 'LAS:UND:MMS:02.RBV'
-HXR_CAST2PCAV_Gain = 1.1283 # the slow from plotting cast phase shifter to value read from PCAV
+HXR_CAST_PS_PV_R = HXR_CAST_PS_PV_W + '.RBV'
+HXR_CAST2PCAV_Gain = 1.1283 # the slope from plotting cast phase shifter to value read from PCAV
+HXR_PCAV_AVG_PV = 'LAS:UNDH:FLOAT:06'
+SXR_FB_PV = 'LAS:UNDS:FLOAT:05'
 SXR_PCAV_PV0 = 'SIOC:UNDS:PT01:0:TIME0'
 SXR_PCAV_PV1 = 'SIOC:UNDS:PT01:0:TIME1'
 SXR_CAST_PS_PV_W = 'LAS:UND:MMS:01'
-SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
+SXR_CAST_PS_PV_R = SXR_CAST_PS_PV_W + '.RBV'
 SXR_CAST2PCAV_Gain = 1.1283 # the slow from plotting cast phase shifter to value read from PCAV
+SXR_PCAV_AVG_PV = 'LAS:UNDS:FLOAT:06'
 # -1727400.6755412123
 
 pause_time = 2    # Let's give some time for the system to react
@@ -38,6 +42,7 @@ pcav_avg_n  = 5    # Taking 5 data samples to average and throw out outliers
 # let's get the current value of the phase shifter
 SXR_CAST_PS_init_Val = epics.caget(SXR_CAST_PS_PV_R)
 Cntl_output = SXR_CAST_PS_init_Val   # once the script runs, that value is the setpoint
+sxr_fb_en = epics.caget(SXR_FB_PV)
 
 time_err_ary = np.zeros((pcav_avg_n,)) 
 
@@ -56,7 +61,7 @@ while True:
     time_err_ary_sort = np.sort(time_err_ary)
     time_err_ary_sort1 = time_err_ary_sort[1:-1]
     time_err_avg = np.mean(time_err_ary_sort1)  
-    
+    epics.caput(SXR_PCAV_AVG_PV, time_err_avg)
     if cntr == 0:
         time_err_diff = 0.01
     else:
@@ -69,7 +74,8 @@ while True:
     print(time_err_avg_prev)
     print('Error diff')
     print(time_err_diff)
-    if (time_err_diff == 0) or (time_err_diff >= 100):
+    sxr_fb_en = epics.caget(SXR_FB_PV)
+    if (time_err_diff == 0) or (time_err_diff >= 100) or (sxr_fb_en == 0):
         cntl_delta = 0
     Cntl_output = Cntl_output + cntl_delta
     print('feedback value')
