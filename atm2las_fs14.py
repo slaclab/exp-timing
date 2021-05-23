@@ -55,6 +55,7 @@ tt_bad_cntr = 0
 cast_ff_en = 0
 cast_ff_cntr = 0
 las_tt_pre = epics.caget(LAS_TT_PV)
+atm_offset_pre = epics.caget(ATM_OFFSET_PV)
 
 # PCAV/CAST feed forward variables 
 DC_val = 0
@@ -71,7 +72,7 @@ motr_step_diff_dir = 0
 cntr = 0
 mv_cntr = 0
 
-# enabled the drift feedback, also setting the drift comp value to 0, since it probably is stale value since last time
+# enabled the drift feedback
 epics.caput(DC_sw_PV, 1)
 
 print('Controller running')
@@ -95,16 +96,21 @@ while True:
     atm_fb_en = epics.caget(ATM_FB_EN_PV)  # Using feedback?
 
     # Get limit threshold from EDM
-    IPM_HI_val = epics.caget(IPM_HI_PV)
-    IPM_LO_val = epics.caget(IPM_LO_PV)
+    ipm_hi_val = epics.caget(IPM_HI_PV)
+    ipm_lo_val = epics.caget(IPM_LO_PV)
     tt_amp_hi_val = epics.caget(TT_amp_HI_PV)
     tt_amp_lo_val = epics.caget(TT_amp_LO_PV)
     tt_fwhm_hi_val = epics.caget(TT_fwhm_HI_PV)
     tt_fwhm_lo_val = epics.caget(TT_fwhm_LO_PV)
 
+    if atm_offset != atm_offset_pre:
+        atm_offset_diff = np.true_divide((atm_offset - atm_offset_pre), 1000)
+        DC_val = epics.caget(DC_val_PV)
+        DC_val = DC_val + atm_offset_diff
+        epics.caput(DC_val_PV, DC_val)
+
     # Condition for good atm reading
-    # 05/05 maybe fwhm threhiold should be PVs too
-    # if (atm_amp > tt_amhilo_val)and(IPM_val > IPM_LO_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
+    # if (atm_amp > tt_amhilo_val)and(IPM_val > ipm_lo_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
     if (atm_amp > tt_amp_lo_val)and(atm_fwhm < tt_fwhm_hi_val)and(atm_fwhm > tt_fwhm_lo_val):
         tt_good_cntr += 1
         tt_good = True
@@ -157,11 +163,13 @@ while True:
         print('ATM array error: ' + str(atm_err) + 'ps')
         print('ATM array mean: ' + str(atm_ary_mean_fs) + 'fs')        
         print('ATM time: ' + str(atm_val))
-        print('ATM amp: ' + str(atm_amp))
-        print('ATM fwhm: ' + str(atm_fwhm))
-        print('IPM val: ' + str(IPM_val))
+        print('ATM amp: ' + str(atm_amp) + '  HIGH:' + str(tt_amp_hi_val) + ' LOW:' + str(tt_amp_lo_val))
+        print('ATM fwhm: ' + str(atm_fwhm) + '  HIGH:' + str(tt_fwhm_hi_val) + ' LOW:' + str(tt_fwhm_lo_val))
+        print('IPM val: ' + str(IPM_val) + '  HIGH:' + str(ipm_hi_val) + ' LOW:' + str(ipm_lo_val))
         print('tt_good_cntr: ' + str(tt_good_cntr))
         print('tt_bad_cntr: ' + str(tt_bad_cntr))
+        print('ATM feedback used status: ' + str(atm_fb_en))
+        print('ATM offset: ' + str(atm_offset) + 'ps')
 
     if (cntr%(pause_time*200) == 0):
         print('+++++++++++++++++++++++++++++++++++++')
@@ -198,6 +206,7 @@ while True:
             print('tt_bad_cntr val: ' + str(tt_bad_cntr))
             # print('atm_t_cntr: ' + str(atm_t_cntr))             
     
+    atm_offset_pre = atm_offset
     cntr += 1
     time.sleep(pause_time)
     
