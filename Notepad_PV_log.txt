@@ -14,10 +14,10 @@ LAS:UNDS:FLOAT:13 "TMO ATM feedback value offset"
 LAS:UNDS:FLOAT:14 "TMO ATM fwhm value"
 LAS:UNDS:FLOAT:15 "TMO ATM feedback enable"
 LAS:UNDS:FLOAT:16 "TMO ATM feedback ignore LXT scan threshold"
-LAS:UNDS:FLOAT:17
-LAS:UNDS:FLOAT:18
-LAS:UNDS:FLOAT:19
-LAS:UNDS:FLOAT:20
+LAS:UNDS:FLOAT:17 
+LAS:UNDS:FLOAT:18 "XPP ATM fwhm value"
+LAS:UNDS:FLOAT:19 "XPP ATM feedback enable"
+LAS:UNDS:FLOAT:20 "XPP ATM feedback ignore LXT scan threshold"
 
 LAS:UNDH:FLOAT:01 "watchdog"
 LAS:UNDH:FLOAT:02 "fehphaseshifterPV"
