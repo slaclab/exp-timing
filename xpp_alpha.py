@@ -1,9 +1,3 @@
-#####################################################################
-# Filename: atm2las_fs14.py
-# Author: Chengcheng Xu (charliex@slac.stanford.edu)
-# Date: 04/28/2021
-#####################################################################
-
 import epics as epics
 import numpy as np
 import time as time
@@ -32,8 +26,6 @@ SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
 ATM_OFFSET_PV = 'LAS:UNDS:FLOAT:13'        # Notepad PV for ATM setpoint PV in ps
 ATM_FB_EN_PV = 'LAS:UNDS:FLOAT:19'         # Enable ATM feedback 
 LXT_thre_PV = 'LAS:UNDS:FLOAT:20'          # Threshold for lxt to move
-P_term_PV = 'LAS:UNDS:FLOAT:12'
-I_term_PV = 'LAS:UNDS:FLOAT:13'
 
 # ATM Feedback variables
 atm_avg_n = 60
@@ -51,17 +43,15 @@ atm_ary_mean_fs = 0
 atm_pm_step = 0
 atm_prev = ATM_val
 atm_t_cntr = 1
-las_tt_pre = epics.caget(LAS_TT_PV)
-atm_offset_pre = epics.caget(ATM_OFFSET_PV)
-i_val  = 0
-t_old = time.time()
-
-# PCAV/CAST feed forward variables 
 atm_stat = 0
 tt_good_cntr = 0
 tt_bad_cntr = 0
 cast_ff_en = 0
 cast_ff_cntr = 0
+las_tt_pre = epics.caget(LAS_TT_PV)
+atm_offset_pre = epics.caget(ATM_OFFSET_PV)
+
+# PCAV/CAST feed forward variables 
 DC_val = 0
 cast_avg_n  = 20    # n sample moving average
 cast_acc    = 0
@@ -76,17 +66,8 @@ motr_step_diff_dir = 0
 cntr = 0
 mv_cntr = 0
 
-# enabled the drift feedback
-epics.caput(DC_sw_PV, 1)
-
 print('Controller running')
 while True:
-    # Did the LXT move? 
-    lxt_thre = epics.caget(LXT_thre_PV)
-    las_tt = epics.caget(LAS_TT_PV)
-    if np.absolute(las_tt-las_tt_pre) > lxt_thre:
-        time.sleep(2)
-
     # Getting ATM & IPM reading determine if the ATM reading is good    
     atm_wf_tmp = epics.caget(ATM_PV)
     atm_pos = atm_wf_tmp[0]
@@ -98,8 +79,6 @@ while True:
     IPM_val  = epics.caget(IPM_PV)
     atm_offset  = epics.caget(ATM_OFFSET_PV)  # get setpoint in ps
     atm_fb_en = epics.caget(ATM_FB_EN_PV)  # Using feedback?
-    p_term = epics.caget(P_term_PV)
-    i_term = epics.caget(I_term_PV)
 
     # Get limit threshold from EDM
     ipm_hi_val = epics.caget(IPM_HI_PV)
@@ -109,13 +88,7 @@ while True:
     tt_fwhm_hi_val = epics.caget(TT_fwhm_HI_PV)
     tt_fwhm_lo_val = epics.caget(TT_fwhm_LO_PV)
 
-    if atm_offset != atm_offset_pre:
-        atm_offset_diff = np.true_divide((atm_offset - atm_offset_pre), 1000)
-        DC_val = epics.caget(DC_val_PV)
-        DC_val = DC_val + atm_offset_diff
-        epics.caput(DC_val_PV, DC_val)
-
-    # Condition for good atm reading
+   # Condition for good atm reading
     # if (atm_amp > tt_amhilo_val)and(IPM_val > ipm_lo_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
     if (atm_amp > tt_amp_lo_val)and(atm_fwhm < tt_fwhm_hi_val)and(atm_fwhm > tt_fwhm_lo_val):
         tt_good_cntr += 1
@@ -127,23 +100,11 @@ while True:
         tt_bad_cntr += 1
         tt_good = False
     
-    # Determine if use ATM or PCAV as drift compensation
-    if (tt_good_cntr > 400) and (atm_t_cntr%(20/pause_time) == 0) :
-        atm_stat = 1
-        atm_t_cntr = 1
-    elif (tt_bad_cntr > 400) and (atm_t_cntr%(20/pause_time) == 0) :
-        atm_stat = 0
-        tt_good_cntr = 0
-        tt_bad_cntr = 0
-        atm_t_cntr = 1
-    elif (atm_t_cntr%(30/pause_time) == 0) :
+    if (cntr%(10/pause_time) == 0) :
         atm_t_cntr = 1
         tt_good_cntr = 0
         tt_bad_cntr = 0
-
-    if (tt_good_cntr != 0) or (tt_bad_cntr != 0):
-        atm_t_cntr += 1    
-
+        
     # Filling the running avg array
     if tt_good:            
         if cntr == 0 and tt_good:
@@ -159,61 +120,16 @@ while True:
         atm_ary_mean_fs = np.around(np.multiply(atm_ary_mean, 1000), 3)
         atm_ary_mean_ns = np.true_divide(atm_ary_mean, 1000)
         atm_err = atm_ary_mean
-        atm_err_ns = np.true_divide(atm_err, -1000)
-
-    if (cntr%(2/pause_time) == 0):
-        # epics.caput(TT_amp_PV, atm_amp)  # Update EDM panel
-        print('#################################')
-        print('ATM array error: ' + str(atm_err) + 'ps')
-        print('ATM array mean: ' + str(atm_ary_mean_fs) + 'fs')        
-        print('ATM time: ' + str(atm_val))
-        print('ATM amp: ' + str(atm_amp) + '  HIGH:' + str(tt_amp_hi_val) + ' LOW:' + str(tt_amp_lo_val))
-        print('ATM fwhm: ' + str(atm_fwhm) + '  HIGH:' + str(tt_fwhm_hi_val) + ' LOW:' + str(tt_fwhm_lo_val))
-        print('IPM val: ' + str(IPM_val) + '  HIGH:' + str(ipm_hi_val) + ' LOW:' + str(ipm_lo_val))
+        atm_err_ns = np.true_divide(atm_err, -1000)    
+    
+    if (cntr%(1/pause_time) == 0):
+        print(' ')
+        print('+++++++++++++++++++++++++++++++++++++')
         print('tt_good_cntr: ' + str(tt_good_cntr))
         print('tt_bad_cntr: ' + str(tt_bad_cntr))
-        print('ATM feedback used status: ' + str(atm_fb_en))
-        print('ATM offset: ' + str(atm_offset) + 'ps')
+        print('ATM array mean: ' + str(atm_ary_mean_fs) + 'fs')   
         print('+++++++++++++++++++++++++++++++++++++')
         print(atm_val_ary)
 
-    if (atm_val_ary.size == atm_avg_n) and (np.absolute(atm_ary_mean_fs)>time_err_th) and (atm_fb_en != 0):   
-        t_now = time.time()
-        dt = t_now - t_old
-        print('Move to compensate')
-        print('dt is : ' + str(dt))
-        print('ATM err ns average: ' + str(atm_err_ns))
-        # DC_val = (p_term * atm_err_ns) + (i_term * (i_val + (np.multiply(atm_err_ns, dt))))
-        DC_val = epics.caget(DC_val_PV)
-        DC_val = DC_val + atm_err_ns
-        epics.caput(DC_val_PV, DC_val)
-        print("move DC PV to: " + str(DC_val) + "ns")
-        print('Clearning ATM array')
-        atm_val_ary = np.array([0])
-        t_old = t_now
-    
-    # if (cntr%(pause_time*1500) == 0):
-    #     print('//////////////////////////////////////////////////////////////////')
-    #     print('Counter val: ' + str(cntr))
-    #     ts = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
-    #     print(ts)
-    #     if atm_stat:
-    #         print('###############################')
-    #         print('Good ATM reading')
-    #         print('tt_good_cntr val: ' + str(tt_good_cntr))
-    #         print('tt_bad_cntr val: ' + str(tt_bad_cntr))
-    #         # print('atm_t_cntr: ' + str(atm_t_cntr))
-    #         print('###############################')   
-    #     else:
-    #         print('##############################')
-    #         print('Bad ATM readings')
-
-    #         print('tt_good_cntr val: ' + str(tt_good_cntr))
-    #         print('tt_bad_cntr val: ' + str(tt_bad_cntr))
-    #         # print('atm_t_cntr: ' + str(atm_t_cntr))             
-    
-    atm_offset_pre = atm_offset
-    las_tt_pre = las_tt
     cntr += 1
     time.sleep(pause_time)
-    
