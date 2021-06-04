@@ -77,8 +77,7 @@ while True:
     else:
         tt_ok = 0
         print('##########Bad ATM reading###########')
-    cntr = cntr + 1
-    time.sleep(0.5)        
+    cntr = cntr + 1       
 
     # Filling the running avg array
     if cntr == 0:
