@@ -1,0 +1,32 @@
+These are the PVs that is needed for ATM feedback to run
+
+###########################
+New PVs
+###########################
+LAS:XYZ:VIT:DC_FB_WATCHDOG  # Drift compensation feedback script watchdog
+LAS:XYZ:VIT:DC_FB_VAL       # Drift compensation feedback value
+LAS:XYZ:VIT:DC_FB_EN        # Drift compensation feedback enable/disable
+LAS:XYZ:VIT:ATM_FB_GAIN     # ATM Feedback gain
+LAS:XYZ:VIT:ATM:PIX         # ATM pixel position value
+LAS:XYZ:VIT:ATM:TIME        # ATM time position
+LAS:XYZ:VIT:ATM:AMP         # ATM amplitude
+LAS:XYZ:VIT:ATM:NAMP        # ATM next amplitude
+LAS:XYZ:VIT:ATM:RAMP        # ATM Reference amplitude
+LAS:XYZ:VIT:ATM:FWHM        # ATM Full width half max
+LAS:XYZ:VIT:ATM:LXT_THRE    # Threshold for the ATM feedback to ignore reading
+LAS:XYZ:VIT:PCAV_FB_GAIN    # PCAVeedback gain
+LAS:XYZ:VIT:PCAV_OFFSET     # PCAVeedback offset
+
+###########################
+Existing PVs
+###########################
+DC_sw_PV  = 'LAS:FS11:VIT:TT_DRIFT_ENABLE'  # Put 0 for disable, put 1 for enable
+DC_val_PV = 'LAS:FS11:VIT:matlab:04'        # Drift correct value in ns
+ATM_PV = 'XPP:TIMETOOL:TTALL'               # ATM waveform PV
+TTC_PV = 'XPP:LAS:MMN:16'                   # ATM mech delay stage
+IPM_PV = 'XPP:SB2:BMMON:SUM'                # intensity profile monitor PV
+LAS_TT_PV = 'LAS:FS11:VIT:FS_TGT_TIME'     # EGU in ns
+HXR_CAST_PS_PV_W = 'LAS:UND:MMS:02'        # EGU in ps
+HXR_CAST_PS_PV_R = 'LAS:UND:MMS:02.RBV'
+SXR_CAST_PS_PV_W = 'LAS:UND:MMS:01'        # EGU in ps
+SXR_CAST_PS_PV_R = 'LAS:UND:MMS:01.RBV'
