@@ -1,0 +1,25 @@
+###########################
+# Existing PVs
+###########################
+DC_sw_PV:  "LAS:FS11:VIT:TT_DRIFT_ENABLE"  # Put 0 for disable, put 1 for enable
+DC_val_PV: "LAS:FS11:VIT:matlab:04"        # Drift correct value in ns
+ATM_PV:    "XPP:TIMETOOL:TTALL"            # ATM waveform PV
+TTC_PV:    "XPP:LAS:MMN:16"                   # ATM mech delay stage
+IPM_PV:    "XPP:SB2:BMMON:SUM"                # intensity profile monitor PV
+LAS_TT_PV:  "LAS:FS11:VIT:FS_TGT_TIME"     # EGU in ns
+HXR_CAST_PS_PV_W: "LAS:UND:MMS:02"        # EGU in ps
+SXR_CAST_PS_PV_W: "LAS:UND:MMS:01"        # EGU in ps
+
+# LAS:FS11:VIT:DC_FB_WATCHDOG  # Drift compensation feedback script watchdog
+# LAS:FS11:VIT:DC_FB_VAL       # Drift compensation feedback value
+# LAS:FS11:VIT:DC_FB_EN        # Drift compensation feedback enable/disable
+# LAS:FS11:VIT:ATM_FB_GAIN     # ATM Feedback gain
+# LAS:FS11:VIT:ATM:PIX         # ATM pixel position value
+# LAS:FS11:VIT:ATM:TIME        # ATM time position
+# LAS:FS11:VIT:ATM:AMP         # ATM amplitude
+# LAS:FS11:VIT:ATM:NAMP        # ATM next amplitude
+# LAS:FS11:VIT:ATM:RAMP        # ATM Reference amplitude
+# LAS:FS11:VIT:ATM:FWHM        # ATM Full width half max
+# LAS:FS11:VIT:ATM:LXT_THRE    # Threshold for the ATM feedback to ignore reading
+# LAS:FS11:VIT:PCAV_FB_GAIN    # PCAVeedback gain
+# LAS:FS11:VIT:PCAV_OFFSET     # PCAVeedback offset
