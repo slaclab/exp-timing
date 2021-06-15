@@ -12,18 +12,18 @@ import yaml
 
 class PVS():
     def __init__(self,hn):
-        filename = ("ATM_" + str(hutch) + "_FB.yml")
+        filename = ("ATM_" + str(hn) + "_FB.yml")
         with open(filename, 'r') as yaml_file:
-            yaml_content = yaml.load(yaml_file, Loader=yaml.SafeLoader)
+            self.yaml_content = yaml.load(yaml_file, Loader=yaml.SafeLoader)
         print("Key: Value")
-        for key, value in yaml_content.items():
+        for key, value in self.yaml_content.items():
             print(str(key)+": "+str(value))
-
-        DC_sw_PV = yaml_content.get("DC_sw_PV")
-        DC_val_PV = yaml_content.get("DC_val_PV")
+        self.DC_sw_PV = self.yaml_content.get("DC_sw_PV")
+        self.DC_val_PV = self.yaml_content.get("DC_val_PV")
 
 def drift_comp_fb(hutch='NULL'):
     P = PVS(hutch)
+    print(P.yaml_content.get("IPM_PV"))
     print(P.DC_sw_PV)
     DC_val = epics.caget(P.DC_val_PV)
     print(str(DC_val))
