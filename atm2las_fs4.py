@@ -62,21 +62,14 @@ atm_bad_thre = 200
 atm_stat = True
 tt_good_cntr = 0
 tt_bad_cntr = 0
-cast_ff_en = 0
-cast_ff_cntr = 0
+
 DC_val = 0
 cast_avg_n  = 20    # n sample moving average
-cast_acc    = 0
-cast_acc_ns = 0
-cast_tot_acc  = 0
 time_err_th = 50    # pcav err threshold in fs
 time_err_ary = 0 
 cast_old = epics.caget(HXR_CAST_PS_PV_R)
-motr_step_cntr = 0  # counter for how many time the phase "motor" has moved in unit of time_err_th
-motr_step_diff_mag = 0
-motr_step_diff_dir = 0
+
 cntr = 0
-mv_cntr = 0
 
 # enabled the drift feedback
 epics.caput(DC_sw_PV, 1)
