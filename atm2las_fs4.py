@@ -55,6 +55,8 @@ las_tt_pre = epics.caget(LAS_TT_PV)
 atm_offset_pre = epics.caget(ATM_OFFSET_PV)
 i_val  = 0
 t_old = time.time()
+atm_good_thre = 150
+atm_bad_thre = 200
 
 # PCAV/CAST feed forward variables 
 atm_stat = True
@@ -130,11 +132,11 @@ while True:
         tt_good = False
     
     # Determine if use ATM or PCAV as drift compensation
-    if (tt_good_cntr > 150) and (cntr%(10/pause_time) == 0) :
+    if (tt_good_cntr > atm_good_thre) and (cntr%(10/pause_time) == 0) :
         atm_stat = True
         tt_good_cntr = 0
         tt_bad_cntr = 0
-    elif (tt_bad_cntr > 200) and (cntr%(10/pause_time) == 0) :
+    elif (tt_bad_cntr > atm_bad_thre) and (cntr%(10/pause_time) == 0) :
         atm_stat = False
         tt_good_cntr = 0
         tt_bad_cntr = 0

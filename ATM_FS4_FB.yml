@@ -1,0 +1,39 @@
+######################################################
+# Filename: ATM_FS4_FB.yml
+# Date: 06/14/2021
+# Author: C. Xu (charliex)
+# YAML file for the FS4 hutch ATM feedback
+######################################################
+
+DC_sw_PV:   "LAS:FS4:VIT:TT_DRIFT_ENABLE"  # Put 0 for disable, put 1 for enable
+DC_val_PV:  "LAS:FS4:VIT:matlab:04"        # Drift correct value in ns
+ATM_FB_EN_PV: "LAS:UNDH:FLOAT:15"         # Using ATM as a feedback
+LXT_thre_PV: "LAS:UNDH:FLOAT:16"         # Threshold for lxt to move
+ATM_FB_GAIN_PV: "LAS:UNDH:FLOAT:17"
+HUTCH_XRAY_ST_PV: "PPS:FEH1:4:ST01IN"
+ATM_PV:     "XCS:TIMETOOL:TTALL"            # ATM waveform PV
+TTC_PV:     "XCS:LAS:MMN:01"                   # ATM mech delay stage
+IPM_PV:     "XCS:SB1:BMMON:SUM"                # intensity profile monitor PV
+TT_time_PV: "LAS:FS4:VIT:matlab:22"
+TT_amp_PV:  "LAS:FS4:VIT:matlab:23"
+TT_fwhm_PV: "LAS:UNDH:FLOAT:14"
+LAS_TT_PV:  "LAS:FS4:VIT:FS_TGT_TIME"     # EGU in ns
+HXR_CAST_PS_PV_W: "LAS:UND:MMS:02"        # EGU in ps
+SXR_CAST_PS_PV_W: "LAS:UND:MMS:01"        # EGU in ps
+atm_avg_n: 60      # array length for the moving average
+time_err_th: 50    # pcav err threshold in fs
+pause_time: 0.025  # estimated feedback freq of the loop
+
+# LAS:FS4:VIT:DC_FB_WATCHDOG  # Drift compensation feedback script watchdog
+# LAS:FS4:VIT:DC_FB_VAL       # Drift compensation feedback value
+# LAS:FS4:VIT:DC_FB_EN        # Drift compensation feedback enable/disable
+# LAS:FS4:VIT:ATM_FB_GAIN     # ATM Feedback gain
+# LAS:FS4:VIT:ATM:PIX         # ATM pixel position value
+# LAS:FS4:VIT:ATM:TIME        # ATM time position
+# LAS:FS4:VIT:ATM:AMP         # ATM amplitude
+# LAS:FS4:VIT:ATM:NAMP        # ATM next amplitude
+# LAS:FS4:VIT:ATM:RAMP        # ATM Reference amplitude
+# LAS:FS4:VIT:ATM:FWHM        # ATM Full width half max
+# LAS:FS4:VIT:ATM:LXT_THRE    # Threshold for the ATM feedback to ignore reading
+# LAS:FS4:VIT:PCAV_FB_GAIN    # PCAVeedback gain
+# LAS:FS4:VIT:PCAV_OFFSET     # PCAVeedback offset

@@ -1,6 +1,10 @@
-###########################
-# Existing PVs
-###########################
+######################################################
+# Filename: ATM_FS11_FB.yml
+# Date: 06/14/2021
+# Author: C. Xu (charliex)
+# YAML file for the FS11 hutch ATM feedback
+######################################################
+
 DC_sw_PV:  "LAS:FS11:VIT:TT_DRIFT_ENABLE"  # Put 0 for disable, put 1 for enable
 DC_val_PV: "LAS:FS11:VIT:matlab:04"        # Drift correct value in ns
 ATM_PV:    "XPP:TIMETOOL:TTALL"            # ATM waveform PV
