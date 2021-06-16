@@ -16,9 +16,9 @@ HUTCH_XRAY_ST_PV: "PPS:FEH1:4:ST01IN"
 ATM_time_PV: "LAS:FS4:VIT:matlab:22"
 ATM_amp_PV:  "LAS:FS4:VIT:matlab:23"
 ATM_fwhm_PV: "LAS:UNDH:FLOAT:14"
-PCAV_FB_EN_PV: ""
-PCAV_FB_GAIN_PV: ""
-PCAV_FB_OFFSET_PV: ""
+PCAV_FB_EN_PV: "LAS:FS4:VIT:matlab:04"
+PCAV_FB_GAIN_PV: "LAS:FS4:VIT:matlab:04"
+PCAV_FB_OFFSET_PV: "LAS:FS4:VIT:matlab:04"
 LXT_thre_PV: "LAS:UNDH:FLOAT:16"          # Threshold for lxt to move
 LAS_TT_PV:  "LAS:FS4:VIT:FS_TGT_TIME"     # EGU in ns
 HXR_CAST_PS_PV_W: "LAS:UND:MMS:02"        # EGU in ps

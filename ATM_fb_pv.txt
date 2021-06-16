@@ -3,19 +3,25 @@ These are the PVs that is needed for ATM feedback to run
 ###########################
 New PVs
 ###########################
-LAS:XYZ:VIT:DC_FB_WATCHDOG  # Drift compensation feedback script watchdog
-LAS:XYZ:VIT:DC_FB_VAL       # Drift compensation feedback value
-LAS:XYZ:VIT:DC_FB_EN        # Drift compensation feedback enable/disable
-LAS:XYZ:VIT:ATM_FB_GAIN     # ATM Feedback gain
-LAS:XYZ:VIT:ATM:PIX         # ATM pixel position value
-LAS:XYZ:VIT:ATM:TIME        # ATM time position
-LAS:XYZ:VIT:ATM:AMP         # ATM amplitude
-LAS:XYZ:VIT:ATM:NAMP        # ATM next amplitude
-LAS:XYZ:VIT:ATM:RAMP        # ATM Reference amplitude
-LAS:XYZ:VIT:ATM:FWHM        # ATM Full width half max
-LAS:XYZ:VIT:ATM:LXT_THRE    # Threshold for the ATM feedback to ignore reading
-LAS:XYZ:VIT:PCAV_FB_GAIN    # PCAVeedback gain
-LAS:XYZ:VIT:PCAV_OFFSET     # PCAVeedback offset
+# LAS:XYZ:VIT:DC_FB_WATCHDOG  # Drift compensation feedback script watchdog
+# LAS:XYZ:VIT:DC_FB_VAL       # Drift compensation feedback value
+# LAS:XYZ:VIT:DC_FB_EN        # Drift compensation feedback enable/disable
+# LAS:XYZ:VIT:ATM_FB_AVGN     # ATM feedback array number
+# LAS:XYZ:VIT:ATM_FB_THRES    # ATM feedback acting threshold
+# LAS:XYZ:VIT:ATM_FB_FREQ     # ATM feedback loop frequency
+# LAS:XYZ:VIT:ATM_FB_EN       # ATM Feedback enable/disable
+# LAS:XYZ:VIT:ATM_FB_GAIN     # ATM Feedback gain
+# LAS:XYZ:VIT:ATM:PIX         # ATM pixel position value
+# LAS:XYZ:VIT:ATM:TIME        # ATM time position
+# LAS:XYZ:VIT:ATM:AMP         # ATM amplitude
+# LAS:XYZ:VIT:ATM:NAMP        # ATM next amplitude
+# LAS:XYZ:VIT:ATM:RAMP        # ATM Reference amplitude
+# LAS:XYZ:VIT:ATM:FWHM        # ATM Full width half max
+# LAS:XYZ:VIT:ATM:LXT_THRE    # Threshold for the ATM feedback to ignore reading
+# LAS:XYZ:VIT:PCAV_FB_EN      # PCAVeedback enable/disable
+# LAS:XYZ:VIT:PCAV_FB_GAIN    # PCAVeedback gain
+# LAS:XYZ:VIT:PCAV_OFFSET     # PCAVeedback offset
+
 
 ###########################
 Existing PVs
