@@ -12,50 +12,81 @@ import yaml
 
 class PVS():
     def __init__(self,hn):              
-        filename = ("ATM_" + str(hn) + "_FB.yml")
+        self.pvlist = dict()
+        self.pv_val  = dict()
+
+        filename = ("ATM_" + str(hn) + "_FBPV.yml")
         with open(filename, 'r') as yaml_file:
             self.yaml_content = yaml.load(yaml_file, Loader=yaml.SafeLoader)
-
-        # print("Key: Value")
-        # for key, value in self.yaml_content.items():
-        #     print(str(key)+": "+str(value))
-        
-        self.pvlist = dict()
         
         a = self.yaml_content.keys()
         for pv in a:
-            # print(pv)
+            print(pv)
             self.pvlist[pv] = self.yaml_content.get(pv)
+            self.pv_val[pv] = epics.caget(self.pvlist[pv])
 
-        # self.pvlist["DC_sw_PV"]  = self.yaml_content.get("DC_sw_PV")
-        # self.pvlist["DC_val_PV"] = self.yaml_content.get("DC_val_PV")
-        # self.pvlist["ATM_FB_EN_PV"] = self.yaml_content.get("ATM_FB_EN_PV")
-        # self.pvlist["ATM_FB_GAIN_PV"] = self.yaml_content.get("ATM_FB_GAIN_PV")
-        # self.pvlist["ATM_WF_PV"] = self.yaml_content.get("ATM_WF_PV")
-        # self.pvlist["ATM_TTC_PV"] = self.yaml_content.get("ATM_TTC_PV")
-        # self.pvlist["IPM_PV"] = self.yaml_content.get("IPM_PV")
-        # self.pvlist["HUTCH_XRAY_ST_PV"] = self.yaml_content.get("HUTCH_XRAY_ST_PV")
-        # self.pvlist["ATM_time_PV"] = self.yaml_content.get("ATM_time_PV")
-        # self.pvlist["ATM_amp_PV"] = self.yaml_content.get("ATM_amp_PV")
-        # self.pvlist["ATM_fwhm_PV"] = self.yaml_content.get("ATM_fwhm_PV")
-        # self.pvlist["PCAV_FB_EN_PV"] = self.yaml_content.get("PCAV_FB_EN_PV")
-        # self.pvlist["PCAV_FB_GAIN_PV"] = self.yaml_content.get("PCAV_FB_GAIN_PV")
-        # self.pvlist["PCAV_FB_OFFSET_PV"] = self.yaml_content.get("PCAV_FB_OFFSET_PV")
-        # self.pvlist["LXT_thre_PV"] = self.yaml_content.get("LXT_thre_PV")
-        # self.pvlist["LAS_TT_PV"] = self.yaml_content.get("LAS_TT_PV")
-        # self.pvlist["HXR_CAST_PS_PV_W"] = self.yaml_content.get("HXR_CAST_PS_PV_W")
-        # self.pvlist["SXR_CAST_PS_PV_W"] = self.yaml_content.get("SXR_CAST_PS_PV_W")
-        self.atm_avg_n = self.yaml_content.get("atm_avg_n")
-        self.time_err_th = self.yaml_content.get("time_err_th")
-        self.pause_time = self.yaml_content.get("pause_time")
+class Config_var():
+    def __init__(self,hn):
+        self.config_var = dict()
+
+        filename = ("ATM_" + str(hn) + "_FBVal.yml")
+        with open(filename, 'r') as yaml_file:
+            self.yaml_content = yaml.load(yaml_file, Loader=yaml.SafeLoader)
+        
+        a = self.yaml_content.keys()
+        for pv in a:
+            print(pv)
+            self.config_var[pv] = self.yaml_content.get(pv)
 
 def drift_comp_fb(hutch='NULL'):
     P = PVS(hutch)
-    print(P.pvlist.items())
-    # print(P.yaml_content.get("IPM_PV"))
-    # print(P.DC_sw_PV)
-    # DC_val = epics.caget(P.DC_val_PV)
-    # print(str(DC_val))
+    Q = Config_var(hutch)
+
+    print("Key: Value")
+    for key, value in P.pv_val.items():
+        print(str(key)+": "+str(value))
+    for key, value in Q.config_var.items():
+        print(str(key)+": "+str(value))
+    atm_pv_key = ["ATM_time", "ATM_amp", "ATM_fwhm"]
+
+    print(len(P.pv_val["ATM_WF"]))
+    ATM_pos = P.pv_val["ATM_WF"][0]
+    ATM_val = P.pv_val["ATM_WF"][1]
+    ATM_amp = P.pv_val["ATM_WF"][2]
+    ATM_nxt_amp = P.pv_val["ATM_WF"][3]
+    ATM_ref_amp = P.pv_val["ATM_WF"][4]
+    ATM_fwhm = P.pv_val["ATM_WF"][5]
+
+    atm_err = 0
+    atm_ary_mean = 0
+    atm_ary_mean_fs = 0
+    atm_pm_step = 0
+    atm_prev = ATM_val
+    atm_t_cntr = 1      
+    las_tt_pre = P.pv_val["LAS_TT"]
+    # atm_offset_pre = epics.caget(ATM_OFFSET_PV)
+    i_val  = 0
+    t_old = time.time()    
+    
+    # PCAV/CAST feed forward variables 
+    atm_stat = True
+    tt_good_cntr = 0
+    tt_bad_cntr = 0
+
+    time_err_ary = 0 
+    cast_old = P.pv_val["CAST_PS_R"]
+
+    cntr = 0
+
+    # enabled the drift feedback
+    epics.caput(P.pvlist["DC_sw"], 1)
+
+    print("Controller running")
+    while True:
+        for i in range(len(P.pv_val["ATM_WF"])):
+            print(P.pv_val["ATM_WF"][i])
+            epics.caput(P.pvlist[])
+
 
 
 if __name__ == "__main__":

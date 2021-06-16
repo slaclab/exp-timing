@@ -1,0 +1,10 @@
+######################################################
+# Filename: ATM_FS4_FBVal.yml
+# Date: 06/14/2021
+# Author: C. Xu (charliex)
+# YAML file for the FS4 hutch ATM feedback config value
+######################################################
+
+atm_avg_n: 60      # array length for the moving average
+time_err_th: 50    # pcav err threshold in fs
+pause_time: 0.025  # estimated feedback freq of the loop
