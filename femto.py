@@ -250,6 +250,38 @@ class PVS():   # creates pvs
         dither_level[nm] = 'LAS:FS4:VIT:matlab:08'    
         matlab[nm] = matlab_use
 
+        nm = 'MFX'
+        namelist.add(nm)
+        base = 'LAS:FS45:'  # base name for this sysetm
+        dev_base[nm] = base+'VIT:'
+        matlab_pv_base[nm] = dev_base[nm]+'matlab:'
+        matlab_pv_offset[nm] = 1
+        matlab_pv_digits[nm] = 2
+        counter_base[nm] = base+'CNT:TI:'   # time interval counter
+        freq_counter[nm] = dev_base[nm]+'FREQ_CUR'        
+        phase_motor[nm] = base+'MMS:PH' 
+        error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
+        version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
+        laser_trigger[nm] = 'EVR:LAS:MFX:01:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
+        reverse_counter[nm] = 1
+        use_secondary_calibration[nm] = 0
+        matlab_use = dict()
+        is_atca[nm] = 0
+        for n in range(0,20):
+            matlab_use[n] = False  # Use new PVs
+        # modified for timetool drift draft
+        drift_correction_signal[nm] = 'LAS:FS45:VIT:matlab:29' # what PV to read
+        drift_correction_multiplier[nm] = -1/(2.856 * 360); 
+        drift_correction_value[nm]= 'LAS:FS45:VIT:matlab:04'# PV the current reading in ns.
+        drift_correction_offset[nm]= 'LAS:FS45:VIT:matlab:05' # PV in final nanoseconds
+        drift_correction_gain[nm]= 'LAS:FS45:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_smoothing[nm]='LAS:FS45:VIT:matlab:07'
+        drift_correction_accum[nm]='LAS:FS45:VIT:matlab:09'
+        use_drift_correction[nm] = True  
+        use_dither[nm] = True # used to allow fast dither of timing (for special functions)
+        dither_level[nm] = 'LAS:FS45:VIT:matlab:08'    
+        matlab[nm] = matlab_use
 
         nm = 'CXI'
         namelist.add(nm)
