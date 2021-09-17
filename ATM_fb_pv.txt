@@ -11,13 +11,13 @@ New PVs
 # LAS:XYZ:VIT:ATM_FB_FREQ     # ATM feedback loop frequency
 # LAS:XYZ:VIT:ATM_FB_EN       # ATM Feedback enable/disable
 # LAS:XYZ:VIT:ATM_FB_GAIN     # ATM Feedback gain
-# LAS:XYZ:VIT:ATM:PIX         # ATM pixel position value
-# LAS:XYZ:VIT:ATM:TIME        # ATM time position
-# LAS:XYZ:VIT:ATM:AMP         # ATM amplitude
-# LAS:XYZ:VIT:ATM:NAMP        # ATM next amplitude
-# LAS:XYZ:VIT:ATM:RAMP        # ATM Reference amplitude
-# LAS:XYZ:VIT:ATM:FWHM        # ATM Full width half max
-# LAS:XYZ:VIT:ATM:LXT_THRE    # Threshold for the ATM feedback to ignore reading
+# LAS:XYZ:ATM:PIX             # ATM pixel position value
+# LAS:XYZ:ATM:TIME            # ATM time position
+# LAS:XYZ:ATM:AMP             # ATM amplitude
+# LAS:XYZ:ATM:NAMP            # ATM next amplitude
+# LAS:XYZ:ATM:RAMP            # ATM Reference amplitude
+# LAS:XYZ:ATM:FWHM            # ATM Full width half max
+# LAS:XYZ:ATM:LXT_THRE        # Threshold for the ATM feedback to ignore reading
 # LAS:XYZ:VIT:PCAV_FB_EN      # PCAVeedback enable/disable
 # LAS:XYZ:VIT:PCAV_FB_GAIN    # PCAVeedback gain
 # LAS:XYZ:VIT:PCAV_OFFSET     # PCAVeedback offset
