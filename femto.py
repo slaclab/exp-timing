@@ -185,7 +185,7 @@ class PVS():   # creates pvs
         base = 'LAS:FS3:'  # base name for this sysetm
         dev_base[nm] = base+'VIT:'
         matlab_pv_base[nm] = dev_base[nm]+'matlab:'
-        matlab_pv_offset[nm] = 1
+        matlab_pv_offset[nm] = 1    
         matlab_pv_digits[nm] = 2
         counter_base[nm] = base+'CNT:TI:'   # time interval counter
         freq_counter[nm] = dev_base[nm]+'FREQ_CUR'        
@@ -279,7 +279,7 @@ class PVS():   # creates pvs
         drift_correction_smoothing[nm]='LAS:FS45:VIT:matlab:07'
         drift_correction_accum[nm]='LAS:FS45:VIT:matlab:09'
         use_drift_correction[nm] = True  
-        use_dither[nm] = True # used to allow fast dither of timing (for special functions)
+        use_dither[nm] = False # used to allow fast dither of timing (for special functions)
         dither_level[nm] = 'LAS:FS45:VIT:matlab:08'    
         matlab[nm] = matlab_use
 
