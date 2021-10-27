@@ -159,7 +159,6 @@ def drift_comp_fb(hutch='NULL'):
             atm_err_ns = np.true_divide(atm_err, 1000)
 
         if (cntr%(2/pause_time) == 0):
-            # epics.caput(TT_amp_PV, atm_amp)  # Update EDM panel
             print('#################################')
             print('ATM array error: ' + str(atm_err) + 'ps')
             print('ATM array mean: ' + str(atm_ary_mean_fs) + 'fs')        
