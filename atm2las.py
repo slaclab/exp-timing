@@ -116,8 +116,8 @@ def drift_comp_fb(hutch='NULL'):
 
         # Condition for good atm reading
         # if (atm_amp > tt_amhilo_val)and(IPM_val > ipm_lo_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
-        if ((P.pv_val["HUTCH_XRAY_ST"]==0) and
-            (ATM_amp>tt_amp_lo_val) and
+        # (P.pv_val["HUTCH_XRAY_ST"]==0) and
+        if ((ATM_amp>tt_amp_lo_val) and
             (ATM_fwhm<tt_fwhm_hi_val) and
             (ATM_fwhm>tt_fwhm_lo_val) and
             (ATM_val!=atm_val_ary[-1])):
