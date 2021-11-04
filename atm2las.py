@@ -56,6 +56,7 @@ def drift_comp_fb(hutch='NULL'):
     ATM_nxt_amp = P.pv_val["ATM_WF"][3]
     ATM_ref_amp = P.pv_val["ATM_WF"][4]
     ATM_fwhm = P.pv_val["ATM_WF"][5]
+    lxt_thre = P.pv_val["LXT_thre"]
 
     pause_time = Q.config_var["pause_time"]
     atm_good_thre = Q.config_var["atm_good_thre"]
@@ -114,18 +115,25 @@ def drift_comp_fb(hutch='NULL'):
         cast_dif = cast_old - P.pv_val["CAST_PS_R"]
         cast_dif_ns = np.true_divide(cast_dif, 1000)
 
-        # Condition for good atm reading
-        # if (atm_amp > tt_amhilo_val)and(IPM_val > ipm_lo_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
-        # (P.pv_val["HUTCH_XRAY_ST"]==0) and
-        if ((ATM_amp>tt_amp_lo_val) and
-            (ATM_fwhm<tt_fwhm_hi_val) and
-            (ATM_fwhm>tt_fwhm_lo_val) and
-            (ATM_val!=atm_val_ary[-1])):
-            tt_good_cntr += 1
-            tt_good = True
+    
+        # Did the LXT move? 
+        las_tt = P.pv_val["LAS_TT"]
+        if np.absolute(las_tt-las_tt_pre) < lxt_thre:
+            # Condition for good atm reading
+            # if (atm_amp > tt_amhilo_val)and(IPM_val > ipm_lo_val)and(atm_fwhm < ttfwhm_hi)and(atm_fwhm > ttfwhm_lo):
+            # (P.pv_val["HUTCH_XRAY_ST"]==0) and
+            if ((ATM_amp>tt_amp_lo_val) and
+                (ATM_fwhm<tt_fwhm_hi_val) and
+                (ATM_fwhm>tt_fwhm_lo_val) and
+                (ATM_val!=atm_val_ary[-1])):
+                tt_good_cntr += 1
+                tt_good = True
+            else:
+                tt_bad_cntr += 1
+                tt_good = False
         else:
-            tt_bad_cntr += 1
             tt_good = False
+            time.sleep(1)
         
         # Determine if use ATM or PCAV as drift compensation
         if (tt_good_cntr > atm_good_thre) and (cntr%(10/pause_time) == 0) :
@@ -172,10 +180,13 @@ def drift_comp_fb(hutch='NULL'):
             print('ATM offset: ' + str(P.pv_val["PCAV_FB_OFFSET"]) + 'ps')
             print('+++++++++++++++++++++++++++++++++++++')
             print(atm_val_ary)
+        
+        if (P.pv_val["ATM_FB_EN"] != 0):
+            atm_val_ary = np.array([0])
 
         if (atm_val_ary.size == atm_avg_n) and (np.absolute(atm_ary_mean_fs)>time_err_th) and (P.pv_val["ATM_FB_EN"] != 0):   
-            t_now = time.time()
-            dt = t_now - t_old
+            # t_now = time.time()
+            # dt = t_now - t_old
             print('Move to compensate')
             # DC_val = (p_term * atm_err_ns) + (i_term * (i_val + (np.multiply(atm_err_ns, dt))))
             DC_val = epics.caget(P.pvlist["DC_val"])
@@ -186,7 +197,7 @@ def drift_comp_fb(hutch='NULL'):
             print("move DC PV to: " + str(DC_val))
             print('Clearning ATM array')
             atm_val_ary = np.array([0])
-            t_old = t_now
+            # t_old = t_now
         # else:
         #     # DC_val = epics.caget(DC_val_PV)
         #     # DC_val = DC_val + cast_dif_ns
@@ -220,7 +231,7 @@ def drift_comp_fb(hutch='NULL'):
         # clean up
         atm_offset_pre = P.pv_val["PCAV_FB_OFFSET"]        
         cast_old = P.pv_val["CAST_PS_R"]
-        las_tt_pre = P.pv_val["LAS_TT"]
+        las_tt_pre = las_tt
         # Reset the counter after 10minutes
         if (cntr%((60*10)/pause_time) == 0):
             cntr = 1
