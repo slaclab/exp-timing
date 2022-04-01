@@ -6,7 +6,6 @@ Timetool PV is XPP:TIMETOOL:TTALL which is a waveform of length 6.  Here's the d
           v[4] = d.ref_amplitude();  # amplitude of laser signal at edge position
           v[5] = d.position_fwhm(); # FWHM of edge "shape"
 
--Matt
 
 in Takahiro's code
 
