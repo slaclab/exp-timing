@@ -1,3 +1,5 @@
+# source /reg/g/pcds/engineering_tools/xpp/scripts/pcds_conda
+
 import epics as epics
 import numpy as np
 import time as time
