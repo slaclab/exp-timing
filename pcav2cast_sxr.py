@@ -81,7 +81,8 @@ while True:
     xpp_sw_val = epics.caget(XPP_Switch_PV)
     if (xpp_sw_val != 0):
         hxr_cast_val = epics.caget(HXR_CAST_PS_PV_R)
-        Cntl_out = hxr_cast_val
+        print('Special for XPP use,  HXR pcav -> SXR CAST')
+        Cntl_output = hxr_cast_val
     else:
         Cntl_output = Cntl_output + cntl_delta
     print('feedback value')
