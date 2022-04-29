@@ -30,6 +30,7 @@ SXR_CAST_PS_PV_W = 'LAS:UND:MMS:01'
 SXR_CAST_PS_PV_R = SXR_CAST_PS_PV_W + '.RBV'
 SXR_CAST2PCAV_Gain = 1.1283 # the slow from plotting cast phase shifter to value read from PCAV
 SXR_PCAV_AVG_PV = 'LAS:UNDS:FLOAT:06'
+XPP_Switch_PV = 'LAS:UNDS:FLOAT:07'
 # -1727400.6755412123
 
 pause_time = 2    # Let's give some time for the system to react
@@ -77,7 +78,12 @@ while True:
     sxr_fb_en = epics.caget(SXR_FB_PV)
     if (time_err_diff == 0) or (time_err_diff >= 100) or (sxr_fb_en == 0):
         cntl_delta = 0
-    Cntl_output = Cntl_output + cntl_delta
+    xpp_sw_val = epics.caget(XPP_Switch_PV)
+    if (xpp_sw_val != 0):
+        hxr_cast_val = epics.caget(HXR_CAST_PS_PV_R)
+        Cntl_out = hxr_cast_val
+    else:
+        Cntl_output = Cntl_output + cntl_delta
     print('feedback value')
     print(Cntl_output)
     print('feedback delta')
