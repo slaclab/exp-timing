@@ -46,6 +46,7 @@ Cntl_output = SXR_CAST_PS_init_Val   # once the script runs, that value is the s
 sxr_fb_en = epics.caget(SXR_FB_PV)
 
 time_err_ary = np.zeros((pcav_avg_n,)) 
+PCAV_temp_ary = np.zeros(2,)
 
 cntr = 0
 time_err_avg_prev = 0
@@ -55,7 +56,12 @@ print('Controller running')
 while True:
     print(cntr)
     for h in range(0,pcav_avg_n):
-        SXR_PCAV_Val_tmp = epics.caget(SXR_PCAV_PV0)
+        PCAV_temp_ary[0,] = epics.caget(SXR_PCAV_PV0)
+        PCAV_temp_ary[1,] = epics.caget(SXR_PCAV_PV1)
+        SXR_PCAV_Val_tmp = np.average(PCAV_temp_ary)
+        # SXR_PCAV_Val_tmp = epics.caget(SXR_PCAV_PV0)
+        if np.isnan(SXR_PCAV_Val_tmp):
+            SXR_PCAV_Val_tmp = 0        
         time_err = np.around((Cntl_setpt - SXR_PCAV_Val_tmp), decimals=6)
         time_err_ary[h] = time_err
         time.sleep(0.1)
@@ -81,8 +87,8 @@ while True:
     xpp_sw_val = epics.caget(XPP_Switch_PV)
     if (xpp_sw_val != 0):
         hxr_cast_val = epics.caget(HXR_CAST_PS_PV_R)
-        print('Special for XPP use,  HXR pcav -> SXR CAST')
-        Cntl_output = hxr_cast_val
+        print('Special for XPP Sse,  HXR pcav -> SXR CAST')
+        Cntl_output = hxr_cast_Sal
     else:
         Cntl_output = Cntl_output + cntl_delta
     print('feedback value')
