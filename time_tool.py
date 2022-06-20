@@ -54,6 +54,15 @@ class time_tool():
             stagename = 'LM1K4:COM_MP2_DLY1'  # delay stage for time tool
             ipmname = 'EM2K0:XGMD:HPS:milliJoulesPerPulse' # intensity profile monitor PV
 
+        elif sys == 'RIX':  # setup for RIX
+            print('starting RIX ATM feedback')
+            self.delay = 0.1 # 1 second delay
+            pvname = 'RIX:TIMETOOL:TTALL'  # time tool array name
+            matlab_start = 20 # first matlab pv
+            matlab_prefix = 'LAS:FS11:VIT:matlab:'  # start of matlab names
+            stagename = 'LM2K2:COM_MP2_DLY1'  # delay stage for time tool
+            # ipmname = 'EM2K0:XGMD:HPS:milliJoulesPerPulse' # intensity profile monitor PV
+
         else:
             print sys + '  not found, exiting'
             exit()
