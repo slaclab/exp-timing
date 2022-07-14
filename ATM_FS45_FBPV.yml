@@ -1,0 +1,45 @@
+######################################################
+# Filename: ATM_FS45_FBPV.yml
+# Date: 06/14/2021
+# Author: C. Xu (charliex)
+# YAML file for the FS45 hutch ATM feedback PV
+######################################################
+
+DC_sw:   "LAS:FS45:VIT:TT_DRIFT_ENABLE"  # Put 0 for disable, put 1 for enable
+DC_acc:  "LAS:FS45:VIT:TT_DRIFT_ACCU_ENABLE" #
+DC_val:  "LAS:FS45:VIT:matlab:04"        # Drift correct value in ns
+ATM_FB_EN: "LAS:FS45:VIT:TT_DRIFT_ENABLE"    # Using ATM as a feedback
+ATM_FB_GAIN: "LAS:UNDH:FLOAT:31"
+ATM_WF:     "MFX:TIMETOOL:TTALL"        # ATM waveform PV
+ATM_TTC:     "MFX:LAS:MMN:01"           # ATM mech delay stage
+IPM:     "MFX:SB2:BMMON:SUM"            # intensity profile monitor PV
+HUTCH_XRAY_ST: "PPS:FEH1:4:ST01IN"
+ATM_time: "LAS:FS45:VIT:matlab:22"
+ATM_amp:  "LAS:FS45:VIT:matlab:23"
+ATM_fwhm: "LAS:UNDH:FLOAT:32"
+PCAV_FB_EN: "LAS:FS45:VIT:matlab:04"
+PCAV_FB_GAIN: "LAS:FS45:VIT:matlab:04"
+PCAV_FB_OFFSET: "LAS:FS45:VIT:matlab:04"
+LXT_thre: "LAS:UNDH:FLOAT:33"          # Threshold for lxt to move
+LAS_TT:  "LAS:FS45:VIT:FS_TGT_TIME"     # EGU in ns
+CAST_PS_W: "LAS:UND:MMS:02"            # EGU in ps
+CAST_PS_R: "LAS:UND:MMS:02.RBV"        # EGU in ps
+
+# LAS:FS4:VIT:DC_FB_WATCHDOG  # Drift compensation feedback script watchdog
+# LAS:FS4:VIT:DC_FB_VAL       # Drift compensation feedback value
+# LAS:FS4:VIT:DC_FB_EN        # Drift compensation feedback enable/disable
+# LAS:FS4:VIT:ATM_FB_AVGN     # ATM feedback array number
+# LAS:FS4:VIT:ATM_FB_THRES    # ATM feedback acting threshold
+# LAS:FS4:VIT:ATM_FB_FREQ     # ATM feedback loop frequency
+# LAS:FS4:VIT:ATM_FB_EN       # ATM Feedback enable/disable
+# LAS:FS4:VIT:ATM_FB_GAIN     # ATM Feedback gain
+# LAS:FS4:VIT:ATM:PIX         # ATM pixel position value
+# LAS:FS4:VIT:ATM:TIME        # ATM time position
+# LAS:FS4:VIT:ATM:AMP         # ATM amplitude
+# LAS:FS4:VIT:ATM:NAMP        # ATM next amplitude
+# LAS:FS4:VIT:ATM:RAMP        # ATM Reference amplitude
+# LAS:FS4:VIT:ATM:FWHM        # ATM Full width half max
+# LAS:FS4:VIT:ATM:LXT_THRE    # Threshold for the ATM feedback to ignore reading
+# LAS:FS4:VIT:PCAV_FB_EN      # PCAVeedback enable/disable
+# LAS:FS4:VIT:PCAV_FB_GAIN    # PCAVeedback gain
+# LAS:FS4:VIT:PCAV_OFFSET     # PCAVeedback offset

@@ -62,6 +62,8 @@ while True:
         PCAV_temp_ary[1,] = epics.caget(HXR_PCAV_PV1)
         HXR_PCAV_Val_tmp = np.average(PCAV_temp_ary)
         # HXR_PCAV_Val_tmp = epics.caget(HXR_PCAV_PV0)
+        if np.isnan(HXR_PCAV_Val_tmp):
+            HXR_PCAV_Val_tmp = 0
         time_err = np.around((Cntl_setpt - HXR_PCAV_Val_tmp), decimals=6)
         time_err_ary[h] = time_err
         time.sleep(0.1)

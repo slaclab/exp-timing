@@ -1,0 +1,13 @@
+######################################################
+# Filename: ATM_RIX_FBVal.yml
+# Date: 06/14/2021
+# Author: C. Xu (charliex)
+# YAML file for the RIX hutch ATM feedback config value
+######################################################
+
+atm_avg_n: 60      # array length for the moving average
+time_err_th: 50    # pcav err threshold in fs
+pause_time: 0.025  # estimated feedback freq of the loop
+atm_good_thre: 150
+atm_bad_thre: 200  
+beam_line: "HXR"   # which beamline is it getting the x-ray from
