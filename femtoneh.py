@@ -855,7 +855,7 @@ class locker():  # sets up parameters of a particular locking system
         trig = ntrig / self.trigger_f
 
         if self.P.use_drift_correction:
-            dc = self.P.get('drift_correction_signal')
+            dc = self.P.get('drift_correction_signal') / 1000; # readback is in ps, but drift correction is ns, need to convert
             do = self.P.get('drift_correction_offset') 
             dg = self.P.get('drift_correction_gain')
             ds = self.P.get('drift_correction_smoothing')
@@ -867,7 +867,7 @@ class locker():  # sets up parameters of a particular locking system
 		if ( dc <> self.dc_last ):           
 		    if ( accum == 1 ): # if drift correction accumulation is enabled
                         #TODO: Pull these limits from the associated matlab PV
-                    	self.drift_last = self.drift_last + (de- self.drift_last) / ds; # smoothing
+                    	self.drift_last = self.drift_last + (de- self.drift_last) / ds; # smoothing, just a running average.
                         self.drift_last = max(-.015, self.drift_last) # floor at 15ps
                         self.drift_last = min(.015, self.drift_last)#
                         self.P.put('drift_correction_value', self.drift_last)
