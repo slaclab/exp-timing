@@ -56,7 +56,7 @@ class time_tool():
             
         elif sys == 'RIX': # setup for RIX
             print 'Starting RIX ATM fb'
-            self.delay = 0.1 
+            self.delay = 1 
             pvname = 'RIX:TIMETOOL:TTALL' # atm waveform pv name
             matlab_start = 20 # first matlab pv
             matlab_prefix = 'LAS:FS11:VIT:matlab:'  # start of matlab names
@@ -78,7 +78,7 @@ class time_tool():
         self.values = dict() # will hold the numbers from the time tool
         self.limits = dict() # will hold limits from matlab pvs
         self.old_values = dict() # will hold the old values read from matlab
-        self.nm = ['watchdog', 'pix', 'fs', 'amp', 'amp_second', 'ref', 'FWHM', 'Stage', 'ipm','dcsignal'] #list of internal names
+        self.nm = ['watchdog', 'pix', 'ps', 'amp', 'amp_second', 'ref', 'FWHM', 'Stage', 'ipm','dcsignal'] #list of internal names
         for n in range(0,10): # loop over pvs to create
             base = matlab_prefix + str(n+matlab_start) # base pv name
             self.matlab_pv[self.nm[n]] = [Pv(base), Pv(base+'.LOW'), Pv(base+'.HIGH'), Pv(base+'.DESC')]  # pv with normal, low and high
@@ -123,7 +123,7 @@ class time_tool():
                      #print 'Data is fresh. New pix value:'
                      #print self.matlab_pv['pix'][0].value
                      # at this point, know that data is good and need to move it over to the drift correction algo
-                     self.matlab_pv['dcsignal'][0].put(value = self.matlab_pv['pix'][0].value, timeout = 1.0)
+                     self.matlab_pv['dcsignal'][0].put(value = self.matlab_pv['ps'][0].value, timeout = 1.0)
                  #else:
                      #print 'Data is stale or stage is moving'
                      #print self.old_values['pix']
