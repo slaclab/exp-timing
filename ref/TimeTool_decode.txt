@@ -1,0 +1,14 @@
+Timetool PV is XPP:TIMETOOL:TTALL which is a waveform of length 6.  Here's the definition of the sample contents
+          v[0] = d.position_pixel();  # pixel of edge position
+          v[1] = d.position_time();  # calibrated picoseconds
+          v[2] = d.amplitude();         # amplitude of edge (validity cut)
+          v[3] = d.nxt_amplitude(); # next highest edge amplitude (validity cut)
+          v[4] = d.ref_amplitude();  # amplitude of laser signal at edge position
+          v[5] = d.position_fwhm(); # FWHM of edge "shape"
+
+
+in Takahiro's code
+
+ttamp -> d.amplitude        # he sets the threshold to be 0.05
+ipm2val -> d.nxt_amplitud   # he sets the threshold to be 2000 to 3000
+ttfwhm -> d.position_fwhm   # value should be 70 < ttfwhm < 130
