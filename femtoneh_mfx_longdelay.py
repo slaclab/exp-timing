@@ -271,6 +271,37 @@ class PVS():   # creates pvs
         dither_level[nm] = 'LAS:FS4:VIT:matlab:08'    
         matlab[nm] = matlab_use
 
+        nm = 'MFX'
+        namelist.add(nm)
+        base = 'LAS:FS45:'  # base name for this sysetm
+        dev_base[nm] = base+'VIT:'
+        matlab_pv_base[nm] = dev_base[nm]+'matlab:'
+        matlab_pv_offset[nm] = 1
+        matlab_pv_digits[nm] = 2
+        counter_base[nm] = base+'CNT:TI:'   # time interval counter
+        freq_counter[nm] = dev_base[nm]+'FREQ_CUR'        
+        phase_motor[nm] = base+'MMS:PH' 
+        error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
+        version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
+        laser_trigger[nm] = 'EVR:LAS:MFX:01:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
+        reverse_counter[nm] = 1
+        use_secondary_calibration[nm] = 0
+        matlab_use = dict()
+        for n in range(0,20):
+            matlab_use[n] = False  # Use new PVs
+        # modified for timetool drift draft
+        drift_correction_signal[nm] = 'LAS:FS45:VIT:matlab:29' # what PV to read
+        drift_correction_multiplier[nm] = -1/(2.856 * 360); 
+        drift_correction_value[nm]= 'LAS:FS45:VIT:matlab:04'# PV the current reading in ns.
+        drift_correction_offset[nm]= 'LAS:FS45:VIT:matlab:05' # PV in final nanoseconds
+        drift_correction_gain[nm]= 'LAS:FS45:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_smoothing[nm]='LAS:FS45:VIT:matlab:07'
+        drift_correction_accum[nm]='LAS:FS45:VIT:matlab:09'
+        use_drift_correction[nm] = True  
+        use_dither[nm] = False # used to allow fast dither of timing (for special functions)
+        dither_level[nm] = 'LAS:FS45:VIT:matlab:08'    
+        matlab[nm] = matlab_use
 
         nm = 'CXI'
         namelist.add(nm)
@@ -284,7 +315,7 @@ class PVS():   # creates pvs
         phase_motor[nm] = base+'MMS:PH' 
         error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
         version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'LAS:R52B:EVR:31:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        laser_trigger[nm] = 'EVR:LAS:CXI:01:TRIG1:TDES' # was'LAS:R52B:EVR:31:TRIG0:TDES' but it broke  before that it  was 'LAS:SR63:EVR:09:CTRL.DG0D'
         trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
         reverse_counter[nm] = 1
         use_secondary_calibration[nm] = 0
@@ -316,7 +347,7 @@ class PVS():   # creates pvs
         phase_motor[nm] = base+'MMS:PH' 
         error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
         version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'LAS:MEC:EVR:03:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        laser_trigger[nm] = 'MEC:LAS:EVR:01:TRIG5:TDES' #220502 was 'MEC:LAS:EVR:01:TRIG1:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
         trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
         reverse_counter[nm] = 1
         use_secondary_calibration[nm] = 0
@@ -389,7 +420,8 @@ class PVS():   # creates pvs
         phase_motor[nm] = base+'MMS:PH' 
         error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
         version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'EVR:LAS:LHN:01:TRIG1:TDES' # was DG2D???  was -39983
+        laser_trigger[nm] = 'EVR:LAS:LHN:01:TRIG3:TDES' # was DG2D???  was -39983
+        print laser_trigger[nm]
         trig_in_ticks[nm] = 0  # Now using new time invariant trjggers
         reverse_counter[nm] = 1  # start / stop reversed for this laser
         use_secondary_calibration[nm] = 0
@@ -635,8 +667,8 @@ class locker():  # sets up parameters of a particular locking system
          self.max_jump_error = .05 # nanoseconds too large to be a phase jump
          self.max_frequency_error = 100.0
          self.motor_tolerance = 1
-         self.min_time = -880000 # minimum time that can be set (ns) % was 100  %%%% tset
-         self.max_time = 20000.0 # maximum time that can be set (ns)
+         self.min_time = -8000000.0 # minimum time that can be set (ns) % was 100  %%%% tset
+         self.max_time =  5000000.0 # maximum time that can be set (ns)
          self.locker_file_name = 'locker_data_' + self.P.name + '.pkl'
          self.timing_buffer = 0.0  # nanoseconds, how close to edge we can go in ns
          self.d = dict()
@@ -811,8 +843,10 @@ class locker():  # sets up parameters of a particular locking system
         t_low = self.P.get('time_lolo')
         if t > t_high:
             t = t_high
+            self.P.E.write_error('TGT bigger than time_hihi')
         if t < t_low:
             t = t_low
+            self.P.E.write_error('TGT smaller than time_lolo')
         T = trigger(self.P) # set up trigger
         M = phase_motor(self.P)
         laser_t = t - self.d['offset']  # Just copy workign matlab, don't think!
@@ -822,6 +856,11 @@ class locker():  # sets up parameters of a particular locking system
         ntrig = round((t - self.d['delay'] - (1/self.trigger_f)) * self.trigger_f) # paren was after laser_f
         #ntrig = round((t - self.d['delay'] - (0.5/self.laser_f)) * self.trigger_f) # paren was after laser_f
         trig = ntrig / self.trigger_f
+        #print trig
+        if trig < 9277.31:
+            #print 'trig less than 0'
+            trig = 8.3333e+06 + (trig-9277.31)
+            #print trig
 
         if self.P.use_drift_correction:
             dc = self.P.get('drift_correction_signal')
@@ -1008,7 +1047,7 @@ class phase_motor():
         self.P = P
         self.max_tries = 100
         self.loop_delay = 0.1
-        self.tolerance = 2e-5  #was 5e-6
+        self.tolerance = 3e-5  #was 5e-6 #was 2e-5
         self.position = self.P.get('phase_motor') * self.scale  # get the current position  WARNING logic race potential
         self.wait_for_stop()  # wait until it stops moving
 
@@ -1189,6 +1228,7 @@ def femto(name='NULL'):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
+        print 'femto - neh - mfx - long delay'
         femto()  # null input will prompt
     else:
         femto(sys.argv[1])

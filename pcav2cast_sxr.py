@@ -56,8 +56,8 @@ print('Controller running')
 while True:
     print(cntr)
     for h in range(0,pcav_avg_n):
-        PCAV_temp_ary[0,] = epics.caget(SXR_PCAV_PV0)
-        PCAV_temp_ary[1,] = epics.caget(SXR_PCAV_PV1)
+        PCAV_temp_ary[0,] = epics.caget(HXR_PCAV_PV0)
+        PCAV_temp_ary[1,] = epics.caget(HXR_PCAV_PV1)
         SXR_PCAV_Val_tmp = np.average(PCAV_temp_ary)
         # SXR_PCAV_Val_tmp = epics.caget(SXR_PCAV_PV0)
         if np.isnan(SXR_PCAV_Val_tmp):
@@ -88,7 +88,7 @@ while True:
     if (xpp_sw_val != 0):
         hxr_cast_val = epics.caget(HXR_CAST_PS_PV_R)
         print('Special for XPP Sse,  HXR pcav -> SXR CAST')
-        Cntl_output = hxr_cast_Sal
+        Cntl_output = hxr_cast_val
     else:
         Cntl_output = Cntl_output + cntl_delta
     print('feedback value')
