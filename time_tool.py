@@ -9,34 +9,7 @@ from scipy.optimize import leastsq # for secondary calibration
 class time_tool():
     def __init__ (self, sys='NULL'): 
 
-        if sys == 'XPP':  # set up xpp system
-            print 'starting XPP'''
-            self.delay = 0.1 # 1 second delay
-            pvname = 'XPP:TIMETOOL:TTALL'  # time tool array name
-            matlab_start = 20 # first matlab pv
-            matlab_prefix = 'LAS:FS3:VIT:matlab:'  # start of matlab names
-            stagename = 'XPP:LAS:MMN:16'  # delay stage for time tool
-            ipmname = 'XPP:SB2:BMMON:SUM' # intensity profile monitor PV
-
-        elif sys == 'CXI':  # set up cxi system
-            print 'starting CXI'''
-            self.delay = 0.1 # 1 second delay
-            pvname = 'CXI:TIMETOOL:TTALL'  # time tool array name
-            matlab_start = 20 # first matlab pv
-            matlab_prefix = 'LAS:FS5:VIT:matlab:'  # start of matlab names
-            stagename = 'CXI:LAS:MMN:04'  # delay stage for time tool
-            ipmname = 'CXI:DG2:BMMON:SUM' # intensity profile monitor PV
-                    
-        elif sys == 'XCS':  # set up xcs system
-            print 'starting XCS'
-            self.delay = 0.1 # 1 second delay
-            pvname = 'XCS:TIMETOOL:TTALL'  # time tool array name
-            matlab_start = 20 # first matlab pv
-            matlab_prefix = 'LAS:FS4:VIT:matlab:'  # start of matlab names
-            stagename = 'XCS:LAS:MMN:01'  # delay stage for time tool
-            ipmname = 'XCS:SB1:BMMON:SUM' # intensity profile monitor PV
-
-        elif sys == 'FS11': # set up for new bay 1 laser
+        if sys == 'FS11': # set up for new bay 1 laser
             print 'starting FS11'
             self.delay = 0.1
             pvname = 'XPP:TIMETOOL:TTALL'  # time tool array name
@@ -44,7 +17,6 @@ class time_tool():
             matlab_prefix = 'LAS:FS11:VIT:matlab:'  # start of matlab names
             stagename = 'XPP:LAS:MMN:16'  # delay stage for time tool
             ipmname = 'XPP:SB2:BMMON:SUM' # intensity profile monitor PV
-
         elif sys == 'FS14':  # set up FS14 system
             print('starting FS14 pcav2ttdrift')
             self.delay = 0.1 # 1 second delay
@@ -53,36 +25,49 @@ class time_tool():
             matlab_prefix = 'LAS:FS14:VIT:matlab:'  # start of matlab names
             stagename = 'LM1K4:COM_MP2_DLY1'  # delay stage for time tool
             ipmname = 'EM2K0:XGMD:HPS:milliJoulesPerPulse' # intensity profile monitor PV
-            
-        elif sys == 'RIX': # setup for RIX
-            print 'Starting RIX ATM fb'
-            self.delay = 0.1 
-            pvname = 'RIX:TIMETOOL:TTALL' # atm waveform pv name
-            matlab_start = 20
-            matlab_prefix = 'LAS:FS11:VIT:matlab:' 
-            stagename
-            ipmname
-
-        elif sys == 'RIX':  # setup for RIX
-            print('starting RIX ATM feedback')
+        elif sys == 'XPP':  # set up xpp system
+            print 'starting XPP'''
             self.delay = 0.1 # 1 second delay
-            pvname = 'RIX:TIMETOOL:TTALL'  # time tool array name
+            pvname = 'XPP:TIMETOOL:TTALL'  # time tool array name
             matlab_start = 20 # first matlab pv
-            matlab_prefix = 'LAS:FS11:VIT:matlab:'  # start of matlab names
-            stagename = 'LM2K2:COM_MP2_DLY1'  # delay stage for time tool
-            # ipmname = 'EM2K0:XGMD:HPS:milliJoulesPerPulse' # intensity profile monitor PV
-
+            matlab_prefix = 'LAS:FS3:VIT:matlab:'  # start of matlab names
+            stagename = 'XPP:LAS:MMN:16'  # delay stage for time tool
+            ipmname = 'XPP:SB2:BMMON:SUM' # intensity profile monitor PV
+        elif sys == 'XCS':  # set up xcs system
+            print 'starting XCS'
+            self.delay = 0.1 # 1 second delay
+            pvname = 'XCS:TIMETOOL:TTALL'  # time tool array name
+            matlab_start = 20 # first matlab pv
+            matlab_prefix = 'LAS:FS4:VIT:matlab:'  # start of matlab names
+            stagename = 'XCS:LAS:MMN:01'  # delay stage for time tool
+            ipmname = 'XCS:SB1:BMMON:SUM' # intensity profile monitor PV
+        elif sys == 'MFX':  # set up xcs system
+            print 'starting MFX'
+            self.delay = 0.1 # 1 second delay
+            pvname = 'MFX:TT:01:TTALL'  # time tool array name
+            matlab_start = 20 # first matlab pv
+            matlab_prefix = 'LAS:FS45:VIT:matlab:'  # start of matlab names
+            stagename = 'MFX:LAS:MMN:06'  # delay stage for time tool
+            ipmname = 'MFX:DG2:BMMON:SUM' # intensity profile monitor PV
+        elif sys == 'CXI':  # set up cxi system
+            print 'starting CXI'''
+            self.delay = 0.1 # 1 second delay
+            pvname = 'CXI:TT:01:TTALL' #time tool array name
+            matlab_start = 20 # first matlab pv
+            matlab_prefix = 'LAS:FS5:VIT:matlab:' #start of matlab names
+            stagename = 'CXI:LAS:MMN:01'  # delay stage for time tool
+            #stagename = 'CXI:USR:MMN:25'  # delay stage for time tool
+            ipmname = 'CXI:DG2:BMMON:SUM' # intensity profile monitor PV
         else:
             print sys + '  not found, exiting'
             exit()
-        
         
         self.ttpv = Pv(pvname)
         self.ttpv.connect(timeout=1.0) # connect to pv
         self.stagepv = Pv(stagename)
         self.stagepv.connect(timeout=1.0)
-        self.ipmpv = Pv(ipmname)
-        self.ipmpv.connect(timeout=1.0)
+	self.ipmpv = Pv(ipmname)
+	self.ipmpv.connect(timeout=1.0)
         self.matlab_pv = dict()  # will hold list of pvs
         self.values = dict() # will hold the numbers from the time tool
         self.limits = dict() # will hold limits from matlab pvs
@@ -129,7 +114,8 @@ class time_tool():
                      #print 'Data is fresh. New pix value:'
                      #print self.matlab_pv['pix'][0].value
                      # at this point, know that data is good and need to move it over to the drift correction algo
-                     self.matlab_pv['dcsignal'][0].put(value = self.matlab_pv['pix'][0].value, timeout = 1.0)
+                     # self.matlab_pv['dcsignal'][0].put(value = self.matlab_pv['pix'][0].value, timeout = 1.0)
+                     self.matlab_pv['dcsignal'][0].put(value = self.matlab_pv['fs'][0].value, timeout = 1.0)
                  #else:
                      #print 'Data is stale or stage is moving'
                      #print self.old_values['pix']

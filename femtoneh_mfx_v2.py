@@ -96,6 +96,7 @@ class PVS():   # creates pvs
         drift_correction_value = dict() # PV the current reading in ns.
         drift_correction_offset = dict() # PV in final nanoseconds
         drift_correction_gain = dict()  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_dir = dict()  # Direction of timetool stage
         drift_correction_smoothing = dict()  # number of pulse to exponential average
         drift_correction_accum = dict() # enables/disables drift correction accumulation (I term)
         for n in range(0,20):
@@ -108,100 +109,6 @@ class PVS():   # creates pvs
         matlab = dict()  # holds all matlab use pvs
         timeout = 1.0  # default timeout for connecting to pvs
         
-        
-        nm = 'ASTA'
-        namelist.add(nm)
-        base = 'OSC:AS01:1:'  # base name for this sysetm
-        dev_base[nm] = base  # no separate device base for this one.
-        matlab_pv_base[nm] = dev_base[nm]+'matlab:'
-        matlab_pv_offset[nm] = 1
-        matlab_pv_digits[nm] = 2
-        counter_base[nm] = base   # time interval counter - no added base to this one.
-        freq_counter[nm] = dev_base[nm]+'FREQ_CUR'        
-        phase_motor[nm] = base+'M1_MOTR_IQ' 
-        error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
-        version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'TRIG:AS01:RF01:SPARE5:TDES' # updated for ASTA
-        trig_in_ticks[nm] = 0  # Now using new time invariant trjggers
-        reverse_counter[nm] = 1  # start / stop reversed for this laser
-        use_secondary_calibration[nm] = 0
-        matlab_use = dict()
-        for n in range(0,20):
-            matlab_use[n] = False  # Use new Epics pvs for XPP.
-        matlab[nm] = matlab_use    
-        use_drift_correction[nm] = False  
-        use_dither[nm] = False # used to allow fast dither of timing (for special functions)
-        
-        
-        
-        nm = 'FACET'
-        namelist.add(nm)  # add to list of recognized systems
-        dev_base[nm] = 'OSC:LA20:10:'  
-        matlab_pv_base[nm] = 'SIOC:SYS1:ML00:AO'
-        matlab_pv_offset[nm] = 451
-        matlab_pv_digits[nm] = 3
-        counter_base[nm] = 'UTIC:LA20:10:'
-        freq_counter[nm] = dev_base[nm] +'FREQ_RBCK'
-        phase_motor[nm] = dev_base[nm] + 'M1_MOTR_IQ'
-        laser_trigger[nm] = 'MKB:SYS1:1:VAL'  # multiknob to run trigger
-        error_pv_name[nm] = dev_base[nm]+ 'FS_STATUS'
-        version_pv_name[nm] = dev_base[nm]  + 'FS_WATCHDOG.DESC'
-        trig_in_ticks[nm] = 0
-        reverse_counter[nm] = 1
-        use_secondary_calibration[nm] = 0
-        matlab_use = dict()
-        for n in range(0,20):
-            matlab_use[n] = False  # initize to always use matlab, override to use epics pvs.
-        matlab[nm] = matlab_use
-        use_drift_correction[nm] = False  
-        use_dither[nm] = False # used to allow fast dither of timing (for special functions)
-
-        nm = 'AMO'
-        namelist.add(nm)
-        base = 'LAS:FS1:'  # base name for this sysetm
-        dev_base[nm] = base+'VIT:'
-        matlab_pv_base[nm] = dev_base[nm]+'matlab:'
-        matlab_pv_offset[nm] = 1
-        matlab_pv_digits[nm] = 2
-        counter_base[nm] = base+'CNT:TI:'   # time interval counter
-        freq_counter[nm] = dev_base[nm]+'FREQ_CUR'        
-        phase_motor[nm] = base+'MMS:PH' 
-        error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
-        version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'LAS:R51:EVR:33:TRIG0:TDES' # was 'LAS:R51:EVR:33:1:TRIG0:TDES' and before 'LAS:SR63:EVR:09:CTRL.DG0D'
-        trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
-        reverse_counter[nm] = 1
-        use_secondary_calibration[nm] = 0
-        matlab_use = dict()
-        for n in range(0,20):
-            matlab_use[n] = False  # Use new PVs
-        matlab[nm] = matlab_use    
-        use_drift_correction[nm] = False  
-        use_dither[nm] = False # used to allow fast dither of timing (for special functions)
-
-        nm = 'SXR'
-        namelist.add(nm)
-        base = 'LAS:FS2:'  # base name for this sysetm
-        dev_base[nm] = base+'VIT:'
-        matlab_pv_base[nm] = dev_base[nm]+'matlab:'
-        matlab_pv_offset[nm] = 1
-        matlab_pv_digits[nm] = 2
-        counter_base[nm] = base+'CNT:TI:'   # time interval counter
-        freq_counter[nm] = dev_base[nm]+'FREQ_CUR'        
-        phase_motor[nm] = base+'MMS:PH' 
-        error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
-        version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'LAS:R52:EVR:30:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
-        trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
-        reverse_counter[nm] = 1
-        use_secondary_calibration[nm] = 0
-        matlab_use = dict()
-        for n in range(0,20):
-            matlab_use[n] = False  # Use new PVs
-        matlab[nm] = matlab_use    
-        use_drift_correction[nm] = False  
-        use_dither[nm] = False # used to allow fast dither of timing (for special functions)
-
         nm = 'XPP'
         namelist.add(nm)
         base = 'LAS:FS3:'  # base name for this sysetm
@@ -231,13 +138,13 @@ class PVS():   # creates pvs
         drift_correction_value[nm]= 'LAS:FS3:VIT:matlab:04'# PV the current reading in ns.
         drift_correction_offset[nm]= 'LAS:FS3:VIT:matlab:05' # PV in final nanoseconds
         drift_correction_gain[nm]= 'LAS:FS3:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_dir[nm]= 1  # Direction of timetool stage
         drift_correction_smoothing[nm]='LAS:FS3:VIT:matlab:07'
         drift_correction_accum[nm]='LAS:FS3:VIT:matlab:09'
         use_drift_correction[nm] = True  
         use_dither[nm] = True # used to allow fast dither of timing (for special functions)
         dither_level[nm] = 'LAS:FS3:VIT:matlab:08'    
         matlab[nm] = matlab_use
-
 
         nm = 'XCS'
         namelist.add(nm)
@@ -264,6 +171,7 @@ class PVS():   # creates pvs
         drift_correction_value[nm]= 'LAS:FS4:VIT:matlab:04'# PV the current reading in ns.
         drift_correction_offset[nm]= 'LAS:FS4:VIT:matlab:05' # PV in final nanoseconds
         drift_correction_gain[nm]= 'LAS:FS4:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_dir[nm]= 1  # Direction of timetool stage
         drift_correction_smoothing[nm]='LAS:FS4:VIT:matlab:07'
         drift_correction_accum[nm]='LAS:FS4:VIT:matlab:09'
         use_drift_correction[nm] = True  
@@ -271,6 +179,38 @@ class PVS():   # creates pvs
         dither_level[nm] = 'LAS:FS4:VIT:matlab:08'    
         matlab[nm] = matlab_use
 
+        nm = 'MFX'
+        namelist.add(nm)
+        base = 'LAS:FS45:'  # base name for this sysetm
+        dev_base[nm] = base+'VIT:'
+        matlab_pv_base[nm] = dev_base[nm]+'matlab:'
+        matlab_pv_offset[nm] = 1
+        matlab_pv_digits[nm] = 2
+        counter_base[nm] = base+'CNT:TI:'   # time interval counter
+        freq_counter[nm] = dev_base[nm]+'FREQ_CUR'        
+        phase_motor[nm] = base+'MMS:PH' 
+        error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
+        version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
+        laser_trigger[nm] = 'EVR:LAS:MFX:01:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
+        reverse_counter[nm] = 1
+        use_secondary_calibration[nm] = 0
+        matlab_use = dict()
+        for n in range(0,20):
+            matlab_use[n] = False  # Use new PVs
+        # modified for timetool drift draft
+        drift_correction_signal[nm] = 'LAS:FS45:VIT:matlab:29' # what PV to read
+        drift_correction_multiplier[nm] = -1/(2.856 * 360); 
+        drift_correction_value[nm]= 'LAS:FS45:VIT:matlab:04'# PV the current reading in ns.
+        drift_correction_offset[nm]= 'LAS:FS45:VIT:matlab:05' # PV in final nanoseconds
+        drift_correction_gain[nm]= 'LAS:FS45:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_dir[nm]= -1  # Direction of timetool stage
+        drift_correction_smoothing[nm]='LAS:FS45:VIT:matlab:07'
+        drift_correction_accum[nm]='LAS:FS45:VIT:matlab:09'
+        use_drift_correction[nm] = True  
+        use_dither[nm] = False # used to allow fast dither of timing (for special functions)
+        dither_level[nm] = 'LAS:FS45:VIT:matlab:08'    
+        matlab[nm] = matlab_use
 
         nm = 'CXI'
         namelist.add(nm)
@@ -284,7 +224,8 @@ class PVS():   # creates pvs
         phase_motor[nm] = base+'MMS:PH' 
         error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
         version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'LAS:R52B:EVR:31:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        laser_trigger[nm] = 'CXI:REC:EVR:04:TRIG3:TDES' # was'LAS:R52B:EVR:31:TRIG0:TDES' but it broke  before that it  was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        # laser_trigger[nm] = 'EVR:LAS:CXI:01:TRIG1:TDES' # was'LAS:R52B:EVR:31:TRIG0:TDES' but it broke  before that it  was 'LAS:SR63:EVR:09:CTRL.DG0D'
         trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
         reverse_counter[nm] = 1
         use_secondary_calibration[nm] = 0
@@ -298,11 +239,11 @@ class PVS():   # creates pvs
         drift_correction_value[nm]= 'LAS:FS5:VIT:matlab:04'# PV the current reading in ns.
         drift_correction_offset[nm]= 'LAS:FS5:VIT:matlab:05' # PV in final nanoseconds
         drift_correction_gain[nm]= 'LAS:FS5:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_dir[nm]= 1  # Direction of timetool stage
         drift_correction_smoothing[nm]='LAS:FS5:VIT:matlab:07'
         drift_correction_accum[nm]='LAS:FS5:VIT:matlab:09'
         use_drift_correction[nm] = True  
         use_dither[nm] = False # used to allow fast dither of timing (for special functions)
-
 
         nm = 'MEC'
         namelist.add(nm)
@@ -316,7 +257,7 @@ class PVS():   # creates pvs
         phase_motor[nm] = base+'MMS:PH' 
         error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
         version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'LAS:MEC:EVR:03:TRIG0:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        laser_trigger[nm] = 'MEC:LAS:EVR:01:TRIG5:TDES' #220502 was 'MEC:LAS:EVR:01:TRIG1:TDES' # was 'LAS:SR63:EVR:09:CTRL.DG0D'
         trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
         reverse_counter[nm] = 1
         use_secondary_calibration[nm] = 0
@@ -326,9 +267,6 @@ class PVS():   # creates pvs
         matlab[nm] = matlab_use 
         use_drift_correction[nm] = False  
         use_dither[nm] = False # used to allow fast dither of timing (for special functions)          
-
-        
-       
 
         nm = 'VITARA1'
         namelist.add(nm)
@@ -352,7 +290,6 @@ class PVS():   # creates pvs
         matlab[nm] = matlab_use
         use_drift_correction[nm] = False  
         use_dither[nm] = False # used to allow fast dither of timing (for special functions)
-        
         
         nm = 'VITARA2'
         namelist.add(nm)
@@ -389,7 +326,7 @@ class PVS():   # creates pvs
         phase_motor[nm] = base+'MMS:PH' 
         error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
         version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'EVR:LAS:LHN:01:TRIG1:TDES' # was DG2D???  was -39983
+        laser_trigger[nm] = 'EVR:LAS:LHN:01:TRIG3:TDES' # was DG2D???  was -39983
         trig_in_ticks[nm] = 0  # Now using new time invariant trjggers
         reverse_counter[nm] = 1  # start / stop reversed for this laser
         use_secondary_calibration[nm] = 0
@@ -406,6 +343,7 @@ class PVS():   # creates pvs
         drift_correction_value[nm]= 'LAS:FS11:VIT:matlab:04'# PV the current reading in ns.
         drift_correction_offset[nm]= 'LAS:FS11:VIT:matlab:05' # PV in final nanoseconds
         drift_correction_gain[nm]= 'LAS:FS11:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_dir[nm]= 1  # Direction of timetool stage
         drift_correction_smoothing[nm]='LAS:FS11:VIT:matlab:07'
         drift_correction_accum[nm]='LAS:FS11:VIT:matlab:09'
         use_drift_correction[nm] = True  
@@ -442,6 +380,7 @@ class PVS():   # creates pvs
         drift_correction_value[nm]= 'LAS:FS14:VIT:matlab:04'# PV the current reading in ns.
         drift_correction_offset[nm]= 'LAS:FS14:VIT:matlab:05' # PV in final nanoseconds
         drift_correction_gain[nm]= 'LAS:FS14:VIT:matlab:06'  # PV nanoseconds / pv value, 0 is disable
+        drift_correction_dir[nm]= 1  # Direction of timetool stage
         drift_correction_smoothing[nm]='LAS:FS14:VIT:matlab:07'
         drift_correction_accum[nm]='LAS:FS14:VIT:matlab:09'
         use_drift_correction[nm] = True  
@@ -449,7 +388,6 @@ class PVS():   # creates pvs
         dither_level[nm] = 'LAS:FS14:VIT:matlab:08'    
         matlab[nm] = matlab_use
         
-       
         
         while not (self.name in namelist):
             print self.name + '  not found, please enter one of the following '
@@ -462,6 +400,7 @@ class PVS():   # creates pvs
         self.use_drift_correction = use_drift_correction[self.name]
         if self.use_drift_correction:
             self.drift_correction_multiplier = drift_correction_multiplier[self.name]
+            self.drift_correction_dir = drift_correction_dir[self.name]
         self.use_dither = use_dither[self.name] # used to allow fast dither of timing (for special functions)
         if self.use_dither:
             self.dither_level = dither_level[self.name]      
@@ -594,8 +533,7 @@ class PVS():   # creates pvs
             self.pvlist[name].get(ctrl=True, timeout=10.0)
             return self.pvlist[name].value                      
         except:
-            print 'PV READ ERROR'
-            print name
+            print 'PV READ ERROR: ', name
             return 0
                 
                 
@@ -606,9 +544,7 @@ class PVS():   # creates pvs
         try:
             self.pvlist[name].put(x, timeout = 10.0) # long timeout           
         except:
-            print 'UNABLE TO WRITE PV'
-            print name
-            print x
+            print 'UNABLE TO WRITE PV: ', name, '= ', x
                 
     def __del__ (self):
         for v in self.pvlist.itervalues():
@@ -713,8 +649,8 @@ class locker():  # sets up parameters of a particular locking system
                      break # break out of loop
             tout = append(tout, t_tmp) # read timing and put in array
             print 'end of loop'
-            print t_tmp
-            print self.C.good
+            print 'temp. time:\t', t_tmp
+            print 'good reading:\t', self.C.good
             counter_good = append(counter_good, self.C.good) # will use to filter data
             if not self.C.good:
                 print 'bad counter data'
@@ -722,8 +658,7 @@ class locker():  # sets up parameters of a particular locking system
         M.move(tctrl[0])  # return to original position    
         minv = min(tout[nonzero(counter_good)])+ self.delay_offset
 
-        print 'min v is'        
-        print minv
+        print 'min v is: ', minv
         period = 1/self.laser_f # just defining things needed in sawtooth -  UGLY
         delay = minv - t_trig # more code cleanup neded in teh future.
         err = array([]) # will hold array of errors
@@ -732,10 +667,9 @@ class locker():  # sets up parameters of a particular locking system
             S = sawtooth(tctrl, t_trig, delay, x, period) # sawtooth sim
             err = append(err, sum(counter_good*S.r * (S.t - tout)**2))  # total error
         idx = argmin(err) # index of minimum of error
-        print 'offset, delay  trig_time'
-        print offset[idx]
-        print delay
-        print t_trig
+        print 'offset:\t', offset[idx]
+        print 'delay:\t', delay
+        print 'trig_time:\t', t_trig
         S = sawtooth(tctrl, t_trig, delay, offset[idx], period)
         self.P.put('calib_error', sqrt(err[idx]/ self.calib_points))
         self.d['delay'] = delay
@@ -767,9 +701,9 @@ class locker():  # sets up parameters of a particular locking system
             time.sleep(ptime)# long wait for now
             tr = 1e9 * self.P.get('secondary_calibration')
             tread = append(tread, tr)
-            print n
-            print t
-            print tr
+            print 'step:\t', n
+            print 'RNG:\t', t
+            print 'calib:\t', tr
         M.move(t0) # put motor back    
         print 'done motor move'
         
@@ -811,8 +745,10 @@ class locker():  # sets up parameters of a particular locking system
         t_low = self.P.get('time_lolo')
         if t > t_high:
             t = t_high
+            self.P.E.write_error('TGT bigger than time_hihi')
         if t < t_low:
             t = t_low
+            self.P.E.write_error('TGT smaller than time_lolo')
         T = trigger(self.P) # set up trigger
         M = phase_motor(self.P)
         laser_t = t - self.d['offset']  # Just copy workign matlab, don't think!
@@ -824,9 +760,12 @@ class locker():  # sets up parameters of a particular locking system
         trig = ntrig / self.trigger_f
 
         if self.P.use_drift_correction:
-            dc = self.P.get('drift_correction_signal')
+            dc = self.P.get('drift_correction_signal') / 1000; # readback is in ps, but drift correction is ns, need to convert
             do = self.P.get('drift_correction_offset') 
             dg = self.P.get('drift_correction_gain')
+            dd = self.P.drift_correction_dir
+            print 'drift_correction_gain:\t' , dg
+            
             ds = self.P.get('drift_correction_smoothing')
 	    self.drift_last = self.P.get('drift_correction_value')
 	    accum = self.P.get('drift_correction_accum')
@@ -837,18 +776,19 @@ class locker():  # sets up parameters of a particular locking system
 		    if ( accum == 1 ): # if drift correction accumulation is enabled
                         #TODO: Pull these limits from the associated matlab PV
                     	self.drift_last = self.drift_last + (de- self.drift_last) / ds; # smoothing
-                        self.drift_last = max(-.015, self.drift_last) # floor at 15ps
-                        self.drift_last = min(.015, self.drift_last)#
+                        self.drift_last = max(-.001, self.drift_last) # floor at 1 ps
+                        self.drift_last = min(.001, self.drift_last)#
                         self.P.put('drift_correction_value', self.drift_last)
                         self.dc_last = dc
             else:
                 self.drift_last = de # initialize to most recent reading
-                self.drift_last = max(-.015, self.drift_last) # floor at 15ps
-                self.drift_last = min(.015, self.drift_last)#
+                self.drift_last = max(-.001, self.drift_last) # floor at 1 ps
+                self.drift_last = min(.001, self.drift_last)#
                 self.dc_last = dc
                 self.drift_initialized = True # will average next time (ugly)    
 
-            pc = pc - dg * self.drift_last; # fix phase control. 
+            pc = pc - (dd * dg * self.drift_last); # fix phase control. 
+            print 'phase control:\t', pc
 
         if self.P.use_secondary_calibration: # make small corrections based on another calibration
             sa = self.P.get('secondary_calibration_s')
@@ -896,10 +836,8 @@ class locker():  # sets up parameters of a particular locking system
             self.buckets = 0
             self.P.E.write_error( 'not an integer number of buckets')
         if self.buckets != 0:
-            print 'bucket jump - buckets, error'
-            print 'buckets'
-            print self.buckets
-            print self.bucket_error
+            print 'bucket jump - buckets:\t', self.buckets
+            print 'bucket jump - error:\t', self.bucket_error
         self.P.E.write_error( 'Laser OK')      # laser is OK
             
     def fix_jump(self):  # tries to fix the jumps 
@@ -996,8 +934,8 @@ class time_interval_counter():  # reads interval counter data, gets raw or avera
         self.good = 1
         if self.rt.full:
             self.range = self.scale * (max(self.rt.get_array()) - min(self.rt.get_array()))  # range of measurements
-        else:
-            self.range = 0  # don't have a full buffer yet
+#        else:
+#            self.range = 0  # don't have a full buffer yet
         return time * self.scale
 
    
@@ -1008,7 +946,7 @@ class phase_motor():
         self.P = P
         self.max_tries = 100
         self.loop_delay = 0.1
-        self.tolerance = 2e-5  #was 5e-6
+        self.tolerance = 3e-5  #was 5e-6 #was 2e-5
         self.position = self.P.get('phase_motor') * self.scale  # get the current position  WARNING logic race potential
         self.wait_for_stop()  # wait until it stops moving
 

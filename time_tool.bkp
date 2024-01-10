@@ -21,10 +21,10 @@ class time_tool():
         elif sys == 'CXI':  # set up cxi system
             print 'starting CXI'''
             self.delay = 0.1 # 1 second delay
-            pvname = 'CXI:TIMETOOL:TTALL'  # time tool array name
+            pvname = 'CXI:TT:01:TTALL' #time tool array name
             matlab_start = 20 # first matlab pv
-            matlab_prefix = 'LAS:FS5:VIT:matlab:'  # start of matlab names
-            stagename = 'CXI:LAS:MMN:04'  # delay stage for time tool
+            matlab_prefix = 'LAS:FS5:VIT:matlab:' #start of matlab names
+            stagename = 'CXI:USR:MMN:25'  # delay stage for time tool
             ipmname = 'CXI:DG2:BMMON:SUM' # intensity profile monitor PV
                     
         elif sys == 'XCS':  # set up xcs system
@@ -44,7 +44,6 @@ class time_tool():
             matlab_prefix = 'LAS:FS11:VIT:matlab:'  # start of matlab names
             stagename = 'XPP:LAS:MMN:16'  # delay stage for time tool
             ipmname = 'XPP:SB2:BMMON:SUM' # intensity profile monitor PV
-
         elif sys == 'FS14':  # set up FS14 system
             print('starting FS14 pcav2ttdrift')
             self.delay = 0.1 # 1 second delay
@@ -53,16 +52,6 @@ class time_tool():
             matlab_prefix = 'LAS:FS14:VIT:matlab:'  # start of matlab names
             stagename = 'LM1K4:COM_MP2_DLY1'  # delay stage for time tool
             ipmname = 'EM2K0:XGMD:HPS:milliJoulesPerPulse' # intensity profile monitor PV
-            
-        elif sys == 'RIX': # setup for RIX
-            print 'Starting RIX ATM fb'
-            self.delay = 0.1 
-            pvname = 'RIX:TIMETOOL:TTALL' # atm waveform pv name
-            matlab_start = 20 # first matlab pv
-            matlab_prefix = 'LAS:FS14:VIT:matlab:'  # start of matlab names
-            stagename = 'LM2K2:COM_MP2_DLY1'  # delay stage for time tool
-            ipmname = 'XPP:SB2:BMMON:SUM' # intensity profile monitor PV
-
         else:
             print sys + '  not found, exiting'
             exit()
@@ -72,13 +61,13 @@ class time_tool():
         self.ttpv.connect(timeout=1.0) # connect to pv
         self.stagepv = Pv(stagename)
         self.stagepv.connect(timeout=1.0)
-        #self.ipmpv = Pv(ipmname)
-        #self.ipmpv.connect(timeout=1.0)
+	self.ipmpv = Pv(ipmname)
+	self.ipmpv.connect(timeout=1.0)
         self.matlab_pv = dict()  # will hold list of pvs
         self.values = dict() # will hold the numbers from the time tool
         self.limits = dict() # will hold limits from matlab pvs
         self.old_values = dict() # will hold the old values read from matlab
-        self.nm = ['watchdog', 'pix', 'ps', 'amp', 'amp_second', 'ref', 'FWHM', 'Stage', 'ipm','dcsignal'] #list of internal names
+        self.nm = ['watchdog', 'pix', 'fs', 'amp', 'amp_second', 'ref', 'FWHM', 'Stage', 'ipm','dcsignal'] #list of internal names
         for n in range(0,10): # loop over pvs to create
             base = matlab_prefix + str(n+matlab_start) # base pv name
             self.matlab_pv[self.nm[n]] = [Pv(base), Pv(base+'.LOW'), Pv(base+'.HIGH'), Pv(base+'.DESC')]  # pv with normal, low and high
@@ -92,39 +81,35 @@ class time_tool():
     def read_write(self):   
          self.ttpv.get(ctrl=True, timeout=1.0) # get TT array data
          self.stagepv.get(ctrl=True, timeout=1.0) # get TT stage position
-         #self.ipmpv.get(ctrl=True, timeout=1.0) # get intensity profile
+         self.ipmpv.get(ctrl=True, timeout=1.0) # get intensity profile
          for n in range(1,9):
              self.old_values[self.nm[n]] = self.matlab_pv[self.nm[n]][0].value # old PV values
              #self.limits[self.nm[n]] = [self.matlab_pv[self.nm[n]][1].value, self.matlab_pv[self.nm[n]][2].value] # limits
-	     if n in range (1,7):
+	     if n in range (1,6):
                  self.matlab_pv[self.nm[n]][0].put(value = self.ttpv.value[n-1], timeout = 1.0)  # write to matlab PVs 
              for x in range(0,3):
                  self.matlab_pv[self.nm[n]][x].get(ctrl=True, timeout=1.0)  # get all the matlab pvs
          self.matlab_pv[self.nm[7]][0].put(value = self.stagepv.value, timeout = 1.0)  # read stage position
-         #self.matlab_pv[self.nm[8]][0].put(value = self.ipmpv.value, timeout = 1.0) # read/write intensity profile
+         self.matlab_pv[self.nm[8]][0].put(value = self.ipmpv.value, timeout = 1.0) # read/write intensity profile
          #print self.ttpv.value
          #print 'stage position' # TEMP
          #print self.stagepv.value # TEMP
          #print 'intensity profile sum'
-         ##print self.ipmpv.value
+         #print self.ipmpv.value
 
          # need to decide whether to output to the drift correction signal
          # 1. IPM must be in range
-         # There is no intensity profile monitor at RIX, so the IPM is ignored
-	     # if ( self.ipmpv.value > self.matlab_pv['ipm'][1].value ) and ( self.ipmpv.value < self.matlab_pv['ipm'][2].value ):
+	 if ( self.ipmpv.value > self.matlab_pv['ipm'][1].value ) and ( self.ipmpv.value < self.matlab_pv['ipm'][2].value ):
              #print 'intensity profile good'
-        # 2. amp must be in range
-         if ( self.matlab_pv['amp'][0].value > self.matlab_pv['amp'][1].value ) and ( self.matlab_pv['amp'][0].value < self.matlab_pv['amp'][2].value ):
-            #print 'TT edge fit good'
-            # 3. fwhm distribution must be good
-            if ( self.matlab_pv['FWHM'][0].value > self.matlab_pv['FWHM'][1].value ) and ( self.matlab_pv['FWHM'][0].value < self.matlab_pv['FWHM'][2].value ):
-                 # 4. pix must be different from last pix, and stage must not be moving
-                if ( self.matlab_pv['pix'][0].value <> self.old_values['pix'] ) and ( self.matlab_pv['Stage'][0].value == self.old_values['Stage'] ):
+             # 2. amp must be in range
+             if ( self.matlab_pv['amp'][0].value > self.matlab_pv['amp'][1].value ) and ( self.matlab_pv['amp'][0].value < self.matlab_pv['amp'][2].value ):
+                 #print 'TT edge fit good'
+                 # 3. pix must be different from last pix, and stage must not be moving
+                 if ( self.matlab_pv['pix'][0].value <> self.old_values['pix'] ) and ( self.matlab_pv['Stage'][0].value == self.old_values['Stage'] ):
                      #print 'Data is fresh. New pix value:'
                      #print self.matlab_pv['pix'][0].value
                      # at this point, know that data is good and need to move it over to the drift correction algo
-                     temp_atm = self.matlab_pv['ps'][0].value / 1000
-                     self.matlab_pv['dcsignal'][0].put(value = temp_atm, timeout = 1.0)
+                     self.matlab_pv['dcsignal'][0].put(value = self.matlab_pv['pix'][0].value, timeout = 1.0)
                  #else:
                      #print 'Data is stale or stage is moving'
                      #print self.old_values['pix']
