@@ -779,7 +779,7 @@ class locker():  # sets up parameters of a particular locking system
                 if ( self.drift_initialized ):
                     if ( dc <> self.dc_last ):           
                         if ( accum == 1 ): # if drift correction accumulation is enabled
-                                    #TODO: Pull these limits from the associated matlab PV
+                            #TODO: Pull these limits from the associated matlab PV
                             self.drift_last = self.drift_last + (de- self.drift_last) / ds; # smoothing
                             self.drift_last = max(-.001, self.drift_last) #floor at 1 ps in the negative direction
                             self.drift_last = min(.001, self.drift_last)#floor at 1 ps in the positive direction
