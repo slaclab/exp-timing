@@ -793,6 +793,7 @@ class locker():  # sets up parameters of a particular locking system
                     self.drift_initialized = True # will average next time (ugly)   
                 edges[nce] = self.drift_last #write the current drift correction value to the current edge index
                 nce += 1 
+                time.sleep(0.01)
 
             edge_avg = mean(edges) #calculates the average of 50 timetool edges
             if edge_avg > correct_thresh: #checks if the timetool edge average is over the minimum correction threshold
