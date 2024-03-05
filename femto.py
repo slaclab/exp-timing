@@ -54,7 +54,7 @@
 
 import time
 import math
-from pylab import *
+import numpy as np
 import watchdog
 from psp.Pv import Pv
 import sys
