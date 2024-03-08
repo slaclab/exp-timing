@@ -760,35 +760,46 @@ class locker():  # sets up parameters of a particular locking system
         trig = ntrig / self.trigger_f
 
         if self.P.use_drift_correction:
-            dc = self.P.get('drift_correction_signal') / 1000; # readback is in ps, but drift correction is ns, need to convert
-            do = self.P.get('drift_correction_offset') 
-            dg = self.P.get('drift_correction_gain')
-            dd = self.P.drift_correction_dir
-            print 'drift_correction_gain:\t' , dg
-            
-            ds = self.P.get('drift_correction_smoothing')
-	    self.drift_last = self.P.get('drift_correction_value')
-	    accum = self.P.get('drift_correction_accum')
-            # modified to not use drift_correction_offset or drift_correction_multiplier:
-            de  = (dc-do)  # (hopefully) fresh pix value from TT script
-            if ( self.drift_initialized ):
-		if ( dc <> self.dc_last ):           
-		    if ( accum == 1 ): # if drift correction accumulation is enabled
-                        #TODO: Pull these limits from the associated matlab PV
-                    	self.drift_last = self.drift_last + (de- self.drift_last) / ds; # smoothing
-                        self.drift_last = max(-.001, self.drift_last) # floor at 1 ps
-                        self.drift_last = min(.001, self.drift_last)#
-                        self.P.put('drift_correction_value', self.drift_last)
-                        self.dc_last = dc
-            else:
-                self.drift_last = de # initialize to most recent reading
-                self.drift_last = max(-.001, self.drift_last) # floor at 1 ps
-                self.drift_last = min(.001, self.drift_last)#
-                self.dc_last = dc
-                self.drift_initialized = True # will average next time (ugly)    
+            ne = 50 #set the number of edges to average over
+            nce = 0 #current edge number
+            correct_thresh = 0.05 #sets the minimum correction threshold to 50 fs
+            edges = [None]*50
+            while (nce < ne):
+                dc = self.P.get('drift_correction_signal') / 1000; # readback is in ps, but drift correction is ns, need to convert
+                do = self.P.get('drift_correction_offset') 
+                dg = self.P.get('drift_correction_gain')
+                dd = self.P.drift_correction_dir
+                print 'drift_correction_gain:\t' , dg
+                
+                ds = self.P.get('drift_correction_smoothing')
+                self.drift_last = self.P.get('drift_correction_value')
+                accum = self.P.get('drift_correction_accum')
+                # modified to not use drift_correction_offset or drift_correction_multiplier:
+                de  = (dc-do)  # (hopefully) fresh pix value from TT script
+                if ( self.drift_initialized ):
+                    if ( dc <> self.dc_last ):           
+                        if ( accum == 1 ): # if drift correction accumulation is enabled
+                            #TODO: Pull these limits from the associated matlab PV
+                            self.drift_last = self.drift_last + (de- self.drift_last) / ds; # smoothing
+                            self.drift_last = max(-.001, self.drift_last) #floor at 1 ps in the negative direction
+                            self.drift_last = min(.001, self.drift_last)#floor at 1 ps in the positive direction
+                            self.P.put('drift_correction_value', self.drift_last)
+                            self.dc_last = dc
+                else:
+                    self.drift_last = de # initialize to most recent reading
+                    self.drift_last = max(-.001, self.drift_last) # floor at 1 ps in the negative direction
+                    self.drift_last = min(.001, self.drift_last)#floor at 1 ps in the positive direction
+                    self.dc_last = dc
+                    self.drift_initialized = True # will average next time (ugly)   
+                edges[nce] = self.drift_last #write the current drift correction value to the current edge index
+                nce += 1 
+                time.sleep(0.01)
 
-            pc = pc - (dd * dg * self.drift_last); # fix phase control. 
-            print 'phase control:\t', pc
+            edge_avg = mean(edges) #calculates the average of 50 timetool edges
+            if edge_avg > correct_thresh: #checks if the timetool edge average is over the minimum correction threshold
+                dc_final = edge_avg #if over the threshold, the timetool edge average is set as the final correction value
+                pc = pc - (dd * dg * dc_final); # fix phase control.  
+                print 'phase control:\t', pc
 
         if self.P.use_secondary_calibration: # make small corrections based on another calibration
             sa = self.P.get('secondary_calibration_s')
