@@ -315,7 +315,7 @@ class PVS():   # creates pvs
         phase_motor[nm] = base+'MMS:PH' 
         error_pv_name[nm] = dev_base[nm]+'FS_STATUS' 
         version_pv_name[nm] = dev_base[nm]+'FS_WATCHDOG.DESC' 
-        laser_trigger[nm] = 'EVR:LAS:CXI:01:TRIG1:TDES' # was'LAS:R52B:EVR:31:TRIG0:TDES' but it broke  before that it  was 'LAS:SR63:EVR:09:CTRL.DG0D'
+        laser_trigger[nm] = 'EVR:LAS:CXI:01:TRIG3:TDES' # was'LAS:R52B:EVR:31:TRIG0:TDES' but it broke  before that it  was 'LAS:SR63:EVR:09:CTRL.DG0D'
         trig_in_ticks[nm] = 0  # eEdu Granados <edu.granados@gmail.com>xperiment side triggers operate in ticks units
         reverse_counter[nm] = 1
         use_secondary_calibration[nm] = 0
