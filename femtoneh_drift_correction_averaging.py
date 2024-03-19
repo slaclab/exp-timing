@@ -762,7 +762,7 @@ class locker():  # sets up parameters of a particular locking system
         if self.P.use_drift_correction:
             ne = 50 #set the number of edges to average over
             nce = 0 #current edge number
-            correct_thresh = 0.05 #sets the minimum correction threshold to 50 fs
+            correct_thresh = 0.00005 #sets the minimum correction threshold to 50 fs
             edges = [None]*50
             while (nce < ne):
                 dc = self.P.get('drift_correction_signal') / 1000; # readback is in ps, but drift correction is ns, need to convert
